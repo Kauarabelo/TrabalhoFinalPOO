@@ -1,7 +1,7 @@
 package br.com.estudoskaua.trabalhofinalpoo.domain.service;
 
-import br.com.estudoskaua.trabalhofinalpoo.domain.dto.LeilaoDTO;
-import br.com.estudoskaua.trabalhofinalpoo.domain.dto.ProdutoDTO;
+import br.com.estudoskaua.trabalhofinalpoo.api.dto.LeilaoDTO;
+import br.com.estudoskaua.trabalhofinalpoo.api.dto.ProdutoDTO;
 import br.com.estudoskaua.trabalhofinalpoo.domain.model.InstituicaoFinanceira;
 import br.com.estudoskaua.trabalhofinalpoo.domain.model.Leilao;
 import br.com.estudoskaua.trabalhofinalpoo.domain.model.Produto;
@@ -18,9 +18,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * LeilaoService
+ * Serviço responsável pela lógica de negócios relacionada aos leilões.
+ * <p>
+ * Esta classe contém métodos para criar leilões e produtos, além de
+ * validar as entidades relacionadas, como produtos e instituições financeiras.
+ * </p>
  *
- * @author kaua
+ * @author Kaua
  */
 @Service
 public class LeilaoService {
@@ -34,9 +38,14 @@ public class LeilaoService {
     @Autowired
     private InstituicaoFinanceiraRepository instituicaoFinanceiraRepository;
 
+    /**
+     * Cria um novo leilão com base nas informações fornecidas no {@link LeilaoDTO}.
+     *
+     * @param leilaoDTO Objeto que contém as informações necessárias para criar o leilão.
+     * @return O leilão criado.
+     */
     @Transactional
     public Leilao criarLeilao(LeilaoDTO leilaoDTO) {
-
         // Busca e valida os produtos
         List<Produto> produtos = buscarProdutosPorIds(leilaoDTO.getProdutoIds());
 
@@ -60,17 +69,33 @@ public class LeilaoService {
         return leilaoRepository.save(leilao);
     }
 
-    // Método para buscar os produtos por IDs e garantir que existam
+    /**
+     * Busca os produtos por IDs e garante que existam.
+     *
+     * @param produtoIds Lista de IDs dos produtos a serem buscados.
+     * @return Lista de produtos encontrados.
+     */
     private List<Produto> buscarProdutosPorIds(List<Long> produtoIds) {
         return produtoRepository.findAllById(produtoIds);
     }
 
-    // Método para buscar as instituições financeiras por IDs e garantir que existam
+    /**
+     * Busca as instituições financeiras por IDs e garante que existam.
+     *
+     * @param instituicaoFinanceiraIds Lista de IDs das instituições financeiras a serem buscadas.
+     * @return Lista de instituições financeiras encontradas.
+     */
     private List<InstituicaoFinanceira> buscarInstituicoesFinanceirasPorIds(List<Long> instituicaoFinanceiraIds) {
         return instituicaoFinanceiraRepository.findAllById(instituicaoFinanceiraIds);
     }
 
-    // Método para definir o status do leilão com base nas datas de início e fim
+    /**
+     * Define o status do leilão com base nas datas de início e fim.
+     *
+     * @param dataInicio Data de início do leilão.
+     * @param dataFim Data de término do leilão.
+     * @return O status do leilão.
+     */
     private Status definirStatus(LocalDateTime dataInicio, LocalDateTime dataFim) {
         LocalDateTime agora = LocalDateTime.now();
 
@@ -85,6 +110,12 @@ public class LeilaoService {
         return Status.ABERTO; // Padrão de segurança
     }
 
+    /**
+     * Cria um novo produto associado a um leilão com base nas informações fornecidas no {@link ProdutoDTO}.
+     *
+     * @param produtoDTO Objeto que contém as informações necessárias para criar o produto.
+     * @return O produto criado.
+     */
     @Transactional
     public Produto criarProduto(ProdutoDTO produtoDTO) {
         // Busca e valida o leilão
@@ -102,11 +133,15 @@ public class LeilaoService {
         return produtoRepository.save(produto);
     }
 
-
+    /**
+     * Busca um leilão pelo ID e lança uma exceção se não encontrado.
+     *
+     * @param leilaoId ID do leilão a ser buscado.
+     * @return O leilão encontrado.
+     * @throws EntityNotFoundException Se o leilão não for encontrado.
+     */
     private Leilao buscarLeilaoPorId(Long leilaoId) {
         return leilaoRepository.findById(leilaoId)
                 .orElseThrow(() -> new EntityNotFoundException("Leilão com ID " + leilaoId + " não encontrado"));
     }
-
-
 }

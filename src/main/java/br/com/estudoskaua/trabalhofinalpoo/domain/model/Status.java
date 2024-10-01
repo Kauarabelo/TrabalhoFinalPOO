@@ -1,13 +1,20 @@
 package br.com.estudoskaua.trabalhofinalpoo.domain.model;
 
 /**
- * Determina como está o estado do leilao.
- * EM_ANDAMENTO
- * ABERTO
- * FINALIZADO
+ * Enum que representa os diferentes estados de um leilão.
+ * <p>
+ * Os estados são:
+ * <ul>
+ *     <li>EM_ANDAMENTO: O leilão está atualmente em andamento.</li>
+ *     <li>ABERTO: O leilão está aberto para lances, mas ainda não começou.</li>
+ *     <li>FINALIZADO: O leilão foi finalizado e não aceita mais lances.</li>
+ * </ul>
+ * </p>
  *
- * @author kaua
+ * @author Kaua
  */
 public enum Status {
-    EM_ANDAMENTO, ABERTO, FINALIZADO
+    EM_ANDAMENTO,
+    ABERTO,
+    FINALIZADO
 }

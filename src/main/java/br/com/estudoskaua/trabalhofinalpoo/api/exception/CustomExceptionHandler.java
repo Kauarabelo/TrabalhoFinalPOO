@@ -9,15 +9,56 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.util.Date;
 
+/**
+ * Classe de tratamento de exceções personalizada para a aplicação.
+ *
+ * Essa classe captura exceções globais e fornece respostas adequadas
+ * com informações detalhadas sobre o erro ocorrido.
+ */
 @ControllerAdvice
 public class CustomExceptionHandler {
 
+    /**
+     * Manipula exceções globais e retorna uma resposta com status 500 (Internal Server Error).
+     *
+     * @param ex a exceção que ocorreu
+     * @param request a requisição que gerou a exceção
+     * @return ResponseEntity com detalhes do erro
+     */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(new Date(), ex.getMessage(), request.getDescription(false));
+        ErrorResponse errorResponse = new ErrorResponse(new Date(), "Erro interno do servidor", ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // Você pode adicionar mais métodos de tratamento para exceções específicas aqui
+    /**
+     * Manipula exceções de ponteiro nulo e retorna uma resposta com status 400 (Bad Request).
+     *
+     * @param ex a exceção de ponteiro nulo que ocorreu
+     * @param request a requisição que gerou a exceção
+     * @return ResponseEntity com detalhes do erro
+     */
+    @ExceptionHandler(NullPointerException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException ex, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(new Date(), "Um valor nulo foi encontrado", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Manipula exceções de argumento ilegal e retorna uma resposta com status 400 (Bad Request).
+     *
+     * @param ex a exceção de argumento ilegal que ocorreu
+     * @param request a requisição que gerou a exceção
+     * @return ResponseEntity com detalhes do erro
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(new Date(), "Argumento inválido fornecido", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    // Adicione outros manipuladores de exceção conforme necessário
 }
