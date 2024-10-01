@@ -53,4 +53,4 @@ O aplicativo será iniciado na porta 8080 por padrão. Você pode acessar a API 
 Os testes dos endpoints podem ser realizados usando ferramenta como Postman. Segue o link do import em formato json. <a href="">Clique aqui!</a>
 
 ## Lista com Endpoints
-A lista com os endpoints disponiveis podem ser acessadas no swagger <a href="localhost:8080/swagger-ui/index.html">Clique aqui!</a>
+A lista com os endpoints disponiveis podem ser acessadas no swagger. <a href="http://localhost:8080/swagger-ui/index.html">Clique aqui!</a>
