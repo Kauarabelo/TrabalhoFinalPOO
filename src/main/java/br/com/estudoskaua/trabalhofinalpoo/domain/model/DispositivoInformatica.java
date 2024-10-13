@@ -1,69 +1,64 @@
 package br.com.estudoskaua.trabalhofinalpoo.domain.model;
 
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 /**
- * Representa um dispositivo de informática que é um tipo de produto.
- * Inclui informações como marca, modelo e especificações do dispositivo.
+ * Classe que representa um dispositivo de informática no sistema de leilão.
  */
 @Entity
+@DiscriminatorValue("DispositivoInformatica")
 public class DispositivoInformatica extends Produto {
 
+    @Enumerated(EnumType.STRING)
+    private TipoInformatica tipoInformatica;
+
+    private String especificacoes;
     private String marca;
     private String modelo;
-    private String especificacoes;
 
-    /**
-     * Retorna a marca do dispositivo.
-     *
-     * @return Marca do dispositivo
-     */
-    public String getMarca() {
-        return marca;
-    }
+    // Construtores
+    public DispositivoInformatica() {}
 
-    /**
-     * Define a marca do dispositivo.
-     *
-     * @param marca Marca do dispositivo
-     */
-    public void setMarca(String marca) {
+    public DispositivoInformatica(String especificacoes, String marca, String modelo, TipoInformatica tipoInformatica) {
+        this.especificacoes = especificacoes;
         this.marca = marca;
-    }
-
-    /**
-     * Retorna o modelo do dispositivo.
-     *
-     * @return Modelo do dispositivo
-     */
-    public String getModelo() {
-        return modelo;
-    }
-
-    /**
-     * Define o modelo do dispositivo.
-     *
-     * @param modelo Modelo do dispositivo
-     */
-    public void setModelo(String modelo) {
         this.modelo = modelo;
+        this.tipoInformatica = tipoInformatica;
     }
 
-    /**
-     * Retorna as especificações do dispositivo.
-     *
-     * @return Especificações do dispositivo
-     */
+    // Getters e Setters
+    public TipoInformatica getTipoInformatica() {
+        return tipoInformatica;
+    }
+
+    public void setTipoInformatica(TipoInformatica tipoInformatica) {
+        this.tipoInformatica = tipoInformatica;
+    }
+
     public String getEspecificacoes() {
         return especificacoes;
     }
 
-    /**
-     * Define as especificações do dispositivo.
-     *
-     * @param especificacoes Especificações do dispositivo
-     */
     public void setEspecificacoes(String especificacoes) {
         this.especificacoes = especificacoes;
+    }
+
+    public String getMarca() {
+        return marca;
+    }
+
+    public void setMarca(String marca) {
+        this.marca = marca;
+    }
+
+    public String getModelo() {
+        return modelo;
+    }
+
+    public void setModelo(String modelo) {
+        this.modelo = modelo;
     }
 }

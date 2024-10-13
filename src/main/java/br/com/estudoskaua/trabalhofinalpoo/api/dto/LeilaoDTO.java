@@ -1,11 +1,18 @@
 package br.com.estudoskaua.trabalhofinalpoo.api.dto;
 
 import br.com.estudoskaua.trabalhofinalpoo.domain.model.Status;
+import jakarta.validation.Constraint;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotEmpty;
-
+import jakarta.validation.Payload;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,11 +22,9 @@ import java.util.List;
  * Este DTO é utilizado para transferir dados entre as camadas da aplicação,
  * incluindo informações necessárias para a criação e validação de leilões.
  * </p>
- *
- * @author Kaua
  */
+@LeilaoDTO.DataFimPosterior(message = "A data de término deve ser posterior à data de início")
 public class LeilaoDTO {
-
     @NotNull(message = "Descrição não pode estar vazia")
     @NotEmpty(message = "Descrição não pode estar vazia")
     @Size(max = 255, message = "Descrição não pode exceder 255 caracteres")
@@ -217,6 +222,25 @@ public class LeilaoDTO {
      */
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public class DataFimPosteriorValidator implements ConstraintValidator<DataFimPosterior, LeilaoDTO> {
+        @Override
+        public boolean isValid(LeilaoDTO leilaoDTO, ConstraintValidatorContext context) {
+            if (leilaoDTO.getDataInicio() == null || leilaoDTO.getDataFim() == null) {
+                return true;
+            }
+            return leilaoDTO.getDataFim().isAfter(leilaoDTO.getDataInicio());
+        }
+    }
+
+    @Constraint(validatedBy = DataFimPosteriorValidator.class)
+    @Target({ ElementType.TYPE })
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface DataFimPosterior {
+        String message() default "Data de fim deve ser posterior à data de início";
+        Class<?>[] groups() default {};
+        Class<? extends Payload>[] payload() default {};
     }
 
     /**

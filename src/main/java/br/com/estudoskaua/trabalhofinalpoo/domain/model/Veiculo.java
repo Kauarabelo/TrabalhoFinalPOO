@@ -1,68 +1,64 @@
 package br.com.estudoskaua.trabalhofinalpoo.domain.model;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+
 /**
- * Classe que representa um veículo em um leilão.
- * Esta classe herda da classe {@link Produto} e contém informações específicas sobre veículos.
- *
- * @author Kaua
+ * Classe que representa um veículo no sistema de leilão.
  */
+@Entity
+@DiscriminatorValue("Veiculo")
 public class Veiculo extends Produto {
 
-    private String marca; // Marca do veículo
-    private String modelo; // Modelo do veículo
-    private int anoFabricacao; // Ano de fabricação do veículo
+    private String marca;
+    private String modelo;
+    private Integer anoDeFabricacao;
 
-    /**
-     * Obtém a marca do veículo.
-     *
-     * @return a marca do veículo
-     */
+    @Enumerated(EnumType.STRING)
+    private TipoVeiculo tipoVeiculo;
+
+    // Construtores
+    public Veiculo() {}
+
+    public Veiculo(String marca, String modelo, Integer anoDeFabricacao, TipoVeiculo tipoVeiculo) {
+        this.marca = marca;
+        this.modelo = modelo;
+        this.anoDeFabricacao = anoDeFabricacao;
+        this.tipoVeiculo = tipoVeiculo;
+    }
+
+    // Getters e Setters
     public String getMarca() {
         return marca;
     }
 
-    /**
-     * Define a marca do veículo.
-     *
-     * @param marca a nova marca do veículo
-     */
     public void setMarca(String marca) {
         this.marca = marca;
     }
 
-    /**
-     * Obtém o modelo do veículo.
-     *
-     * @return o modelo do veículo
-     */
     public String getModelo() {
         return modelo;
     }
 
-    /**
-     * Define o modelo do veículo.
-     *
-     * @param modelo o novo modelo do veículo
-     */
     public void setModelo(String modelo) {
         this.modelo = modelo;
     }
 
-    /**
-     * Obtém o ano de fabricação do veículo.
-     *
-     * @return o ano de fabricação do veículo
-     */
-    public int getAnoFabricacao() {
-        return anoFabricacao;
+    public Integer getAnoDeFabricacao() {
+        return anoDeFabricacao;
     }
 
-    /**
-     * Define o ano de fabricação do veículo.
-     *
-     * @param anoFabricacao o novo ano de fabricação do veículo
-     */
-    public void setAnoFabricacao(int anoFabricacao) {
-        this.anoFabricacao = anoFabricacao;
+    public void setAnoDeFabricacao(Integer anoDeFabricacao) {
+        this.anoDeFabricacao = anoDeFabricacao;
+    }
+
+    public TipoVeiculo getTipoVeiculo() {
+        return tipoVeiculo;
+    }
+
+    public void setTipoVeiculo(TipoVeiculo tipoVeiculo) {
+        this.tipoVeiculo = tipoVeiculo;
     }
 }

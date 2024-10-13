@@ -29,7 +29,6 @@ public class Cliente {
     private String documento;
 
     // Construtores
-
     /**
      * Construtor padrão.
      */

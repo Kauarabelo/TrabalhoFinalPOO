@@ -1,13 +1,9 @@
 package br.com.estudoskaua.trabalhofinalpoo.domain.repository;
 
 import br.com.estudoskaua.trabalhofinalpoo.domain.model.Produto;
+import br.com.estudoskaua.trabalhofinalpoo.domain.model.Veiculo;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Repositório para a entidade Produto.
@@ -21,12 +17,5 @@ import java.util.Optional;
  * @author Kaua
  */
 @Repository
-public interface ProdutoRepository extends JpaRepository<Produto, Long> {
-    @Query("SELECT p FROM Produto p LEFT JOIN FETCH p.lances")
-    List<Produto> findAllProdutosComLances();
-
-    @Query("SELECT p FROM Produto p LEFT JOIN FETCH p.lances WHERE p.id = :id")
-    Optional<Produto> findByIdComLances(@Param("id") Long id);
-
-    List<Produto> findAllById(Iterable<Long> ids);
+public interface VeiculoRepository extends JpaRepository<Veiculo, Long> {
 }

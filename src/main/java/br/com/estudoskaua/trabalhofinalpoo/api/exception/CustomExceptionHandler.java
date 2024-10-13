@@ -4,7 +4,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 
 import java.util.Date;
@@ -26,9 +25,8 @@ public class CustomExceptionHandler {
      * @return ResponseEntity com detalhes do erro
      */
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(new Date(), "Erro interno do servidor", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(new Date(), "Erro interno do servidor", request.getDescription(false));
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -40,9 +38,8 @@ public class CustomExceptionHandler {
      * @return ResponseEntity com detalhes do erro
      */
     @ExceptionHandler(NullPointerException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(new Date(), "Um valor nulo foi encontrado", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(new Date(), "Um valor nulo foi encontrado", request.getDescription(false));
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
@@ -54,11 +51,8 @@ public class CustomExceptionHandler {
      * @return ResponseEntity com detalhes do erro
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(new Date(), "Argumento inválido fornecido", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(new Date(), "Argumento inválido fornecido", request.getDescription(false));
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
-
-    // Adicione outros manipuladores de exceção conforme necessário
 }

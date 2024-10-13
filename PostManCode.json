@@ -1,0 +1,423 @@
+{
+  "info": {
+    "name": "LeilaoAPI Completa",
+    "description": "Coleção completa para gerenciar leilões, produtos, clientes, lances e instituições financeiras",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Clientes",
+      "item": [
+        {
+          "name": "Criar Cliente",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"João Silva\",\"email\":\"joao.silva@example.com\",\"documento\":\"12345678900\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/clientes",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["clientes"]
+            }
+          }
+        },
+        {
+          "name": "Listar todos os Clientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/clientes",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["clientes"]
+            }
+          }
+        },
+        {
+          "name": "Buscar Cliente por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/clientes/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["clientes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Cliente",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"João Silva Atualizado\",\"email\":\"joao.silva_atualizado@example.com\",\"documento\":\"12345678900\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/clientes/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["clientes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Deletar Cliente",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/clientes/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["clientes", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Leilões",
+      "item": [
+        {
+          "name": "Criar Leilão",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"descricao\":\"Leilão de Teste\",\"dataInicio\":\"2024-12-01T10:00:00\",\"dataFim\":\"2024-12-10T18:00:00\",\"dataVisitacao\":\"2024-12-05T14:00:00\",\"endereco\":\"Rua Exemplo, 123\",\"cidade\":\"São José dos Campos\",\"estado\":\"SP\",\"produtoIds\":[1,2],\"instituicaoFinanceiraIds\":[1,2]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/leiloes",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["leiloes"]
+            }
+          }
+        },
+        {
+          "name": "Listar todos os Leilões",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/leiloes",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["leiloes"]
+            }
+          }
+        },
+        {
+          "name": "Buscar Leilão por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/leiloes/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["leiloes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Leilão",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"descricao\":\"Leilão de Teste Atualizado\",\"dataInicio\":\"2024-12-01T10:00:00\",\"dataFim\":\"2024-12-10T18:00:00\",\"dataVisitacao\":\"2024-12-05T14:00:00\",\"endereco\":\"Rua Exemplo, 123\",\"cidade\":\"São José dos Campos\",\"estado\":\"SP\",\"produtoIds\":[1,2],\"instituicaoFinanceiraIds\":[1,2]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/leiloes/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["leiloes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Deletar Leilão",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/leiloes/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["leiloes", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Instituições Financeiras",
+      "item": [
+        {
+          "name": "Criar Instituição Financeira",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Banco do Brasil\",\"cnpj\":\"00123456000189\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/instituicoes-financeiras",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["instituicoes-financeiras"]
+            }
+          }
+        },
+        {
+          "name": "Listar todas as Instituições Financeiras",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/instituicoes-financeiras",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["instituicoes-financeiras"]
+            }
+          }
+        },
+        {
+          "name": "Buscar Instituição Financeira por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/instituicoes-financeiras/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["instituicoes-financeiras", "1"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Instituição Financeira",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Banco do Brasil Atualizado\",\"cnpj\":\"00123456000189\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/instituicoes-financeiras/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["instituicoes-financeiras", "1"]
+            }
+          }
+        },
+        {
+          "name": "Deletar Instituição Financeira",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/instituicoes-financeiras/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["instituicoes-financeiras", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lances",
+      "item": [
+        {
+          "name": "Dar Lance",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"clienteId\": 1, \"produtoId\": 1, \"valor\": 500.00, \"dataLance\": \"2024-10-13T14:30:00\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/lances",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["lances"]
+            }
+          }
+        },
+        {
+          "name": "Listar todos os Lances",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/lances",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["lances"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Produtos",
+      "item": [
+        {
+          "name": "Criar Produto",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Notebook Dell\",\"descricao\":\"Notebook i7, 16GB RAM\",\"precoInicial\":1200.00, \"dtype\":\"DISPOSITIVO_INFORMATICA\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/produtos",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["produtos"]
+            }
+          }
+        },
+        {
+          "name": "Listar todos os Produtos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/produtos",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["produtos"]
+            }
+          }
+        },
+        {
+          "name": "Buscar Produto por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/produtos/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["produtos", "1"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Produto",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Notebook Dell Atualizado\",\"descricao\":\"Notebook i7, 16GB RAM\",\"precoInicial\":1300.00, \"dtype\":\"DISPOSITIVO_INFORMATICA\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/produtos/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["produtos", "1"]
+            }
+          }
+        },
+        {
+          "name": "Deletar Produto",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/produtos/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["produtos", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

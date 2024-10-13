@@ -4,6 +4,8 @@ import br.com.estudoskaua.trabalhofinalpoo.domain.model.InstituicaoFinanceira;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * Repositório para a entidade InstituicaoFinanceira.
  * <p>
@@ -17,4 +19,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface InstituicaoFinanceiraRepository extends JpaRepository<InstituicaoFinanceira, Long> {
+    List<InstituicaoFinanceira> findAllById(Iterable<Long> ids);
+
 }

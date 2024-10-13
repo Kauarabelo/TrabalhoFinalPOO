@@ -2,7 +2,6 @@ package br.com.estudoskaua.trabalhofinalpoo.domain.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDateTime;
 
 /**
@@ -60,110 +59,50 @@ public class Lance {
 
     // Getters e Setters
 
-    /**
-     * Retorna o ID do lance.
-     *
-     * @return ID do lance
-     */
     public Long getId() {
         return id;
     }
 
-    /**
-     * Define o ID do lance.
-     *
-     * @param id ID do lance
-     */
     public void setId(Long id) {
         this.id = id;
     }
 
-    /**
-     * Retorna o valor do lance.
-     *
-     * @return Valor do lance
-     */
     public Double getValor() {
         return valor;
     }
 
-    /**
-     * Define o valor do lance.
-     *
-     * @param valor Valor do lance
-     */
     public void setValor(Double valor) {
         this.valor = valor;
     }
 
-    /**
-     * Retorna o produto associado a este lance.
-     *
-     * @return Produto associado ao lance
-     */
     public Produto getProduto() {
         return produto;
     }
 
-    /**
-     * Define o produto associado a este lance.
-     *
-     * @param produto Produto associado ao lance
-     */
     public void setProduto(Produto produto) {
         this.produto = produto;
     }
 
-    /**
-     * Retorna o cliente que fez o lance.
-     *
-     * @return Cliente que fez o lance
-     */
     public Cliente getCliente() {
         return cliente;
     }
 
-    /**
-     * Define o cliente que fez o lance.
-     *
-     * @param cliente Cliente que fez o lance
-     */
     public void setCliente(Cliente cliente) {
         this.cliente = cliente;
     }
 
-    /**
-     * Retorna a data e hora em que o lance foi feito.
-     *
-     * @return Data do lance
-     */
     public LocalDateTime getDataLance() {
         return dataLance;
     }
 
-    /**
-     * Define a data e hora em que o lance foi feito.
-     *
-     * @param dataLance Data do lance
-     */
     public void setDataLance(LocalDateTime dataLance) {
         this.dataLance = dataLance;
     }
 
-    /**
-     * Retorna o leilão ao qual este lance está associado.
-     *
-     * @return Leilão associado ao lance
-     */
     public Leilao getLeilao() {
         return leilao;
     }
 
-    /**
-     * Define o leilão ao qual este lance está associado.
-     *
-     * @param leilao Leilão associado ao lance
-     */
     public void setLeilao(Leilao leilao) {
         this.leilao = leilao;
     }

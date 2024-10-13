@@ -1,19 +1,25 @@
 package br.com.estudoskaua.trabalhofinalpoo.api.dto;
 
+import jakarta.validation.Constraint;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
+import jakarta.validation.Payload;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Pattern;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Data Transfer Object (DTO) para representar um produto.
  * Utilizado para transferir dados entre camadas da aplicação.
- *
- * @author Kaua
  */
+@ProdutoDTO.OneTypeOnly(message = "Apenas um tipo de produto deve ser especificado (Informática ou Veículo)")
 public class ProdutoDTO {
-
     @NotBlank(message = "Nome do produto não pode ser vazio")
     @Size(max = 100, message = "Nome do produto não pode exceder 100 caracteres")
     private String nome; // Nome do produto
@@ -32,93 +38,109 @@ public class ProdutoDTO {
     @NotNull(message = "ID do leilão não pode ser nulo")
     private Long leilaoId; // Para associar o produto a um leilão
 
-    /**
-     * Obtém o nome do produto.
-     *
-     * @return o nome do produto.
-     */
+    private String tipoInformatica; // Para dispositivos de informática
+    private String tipoVeiculo; // Para veículos
+    private String marca;    // Marca do veículo
+    private String modelo;   // Modelo do veículo
+    private Integer anoDeFabricacao; // Ano de fabricação do veículo
+
+    // Getters e Setters
+
     public String getNome() {
         return nome;
     }
 
-    /**
-     * Define o nome do produto.
-     *
-     * @param nome o nome do produto.
-     */
     public void setNome(String nome) {
         this.nome = nome;
     }
 
-    /**
-     * Obtém a descrição do produto.
-     *
-     * @return a descrição do produto.
-     */
     public String getDescricao() {
         return descricao;
     }
 
-    /**
-     * Define a descrição do produto.
-     *
-     * @param descricao a descrição do produto.
-     */
     public void setDescricao(String descricao) {
         this.descricao = descricao;
     }
 
-    /**
-     * Obtém o valor do produto.
-     *
-     * @return o valor do produto.
-     */
     public Double getValor() {
         return valor;
     }
 
-    /**
-     * Define o valor do produto.
-     *
-     * @param valor o valor do produto.
-     */
     public void setValor(Double valor) {
         this.valor = valor;
     }
 
-    /**
-     * Obtém a URL da imagem do produto.
-     *
-     * @return a URL da imagem do produto.
-     */
     public String getImagemUrl() {
         return imagemUrl;
     }
 
-    /**
-     * Define a URL da imagem do produto.
-     *
-     * @param imagemUrl a URL da imagem do produto.
-     */
     public void setImagemUrl(String imagemUrl) {
         this.imagemUrl = imagemUrl;
     }
 
-    /**
-     * Obtém o ID do leilão associado ao produto.
-     *
-     * @return o ID do leilão.
-     */
     public Long getLeilaoId() {
         return leilaoId;
     }
 
-    /**
-     * Define o ID do leilão associado ao produto.
-     *
-     * @param leilaoId o ID do leilão.
-     */
     public void setLeilaoId(Long leilaoId) {
         this.leilaoId = leilaoId;
+    }
+
+    public String getTipoInformatica() {
+        return tipoInformatica;
+    }
+
+    public void setTipoInformatica(String tipoInformatica) {
+        this.tipoInformatica = tipoInformatica;
+    }
+
+    public String getTipoVeiculo() {
+        return tipoVeiculo;
+    }
+
+    public void setTipoVeiculo(String tipoVeiculo) {
+        this.tipoVeiculo = tipoVeiculo;
+    }
+
+    public String getMarca() {
+        return marca;
+    }
+
+    public void setMarca(String marca) {
+        this.marca = marca;
+    }
+
+    public String getModelo() {
+        return modelo;
+    }
+
+    public void setModelo(String modelo) {
+        this.modelo = modelo;
+    }
+
+    public Integer getAnoDeFabricacao() {
+        return anoDeFabricacao;
+    }
+
+    public void setAnoDeFabricacao(Integer anoDeFabricacao) {
+        this.anoDeFabricacao = anoDeFabricacao;
+    }
+
+    @Constraint(validatedBy = OneTypeOnlyValidator.class)
+    @Target({ ElementType.TYPE })
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface OneTypeOnly {
+        String message() default "Apenas um tipo de produto deve ser especificado (Informática ou Veículo)";
+        Class<?>[] groups() default {};
+        Class<? extends Payload>[] payload() default {};
+    }
+
+    public static class OneTypeOnlyValidator implements ConstraintValidator<OneTypeOnly, ProdutoDTO> {
+        @Override
+        public boolean isValid(ProdutoDTO produtoDTO, ConstraintValidatorContext context) {
+            boolean hasTipoInformatica = produtoDTO.getTipoInformatica() != null && !produtoDTO.getTipoInformatica().isEmpty();
+            boolean hasTipoVeiculo = produtoDTO.getTipoVeiculo() != null && !produtoDTO.getTipoVeiculo().isEmpty();
+            return hasTipoInformatica ^ hasTipoVeiculo; // Retorna true se apenas um dos campos estiver preenchido
+        }
     }
 }

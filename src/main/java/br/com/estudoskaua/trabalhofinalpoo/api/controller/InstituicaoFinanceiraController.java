@@ -5,7 +5,6 @@ import br.com.estudoskaua.trabalhofinalpoo.domain.repository.InstituicaoFinancei
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +19,12 @@ import java.util.Optional;
 @RequestMapping("/instituicoes")
 public class InstituicaoFinanceiraController {
 
-    @Autowired
-    private InstituicaoFinanceiraRepository instituicaoFinanceiraRepository;
-
+    private final InstituicaoFinanceiraRepository instituicaoFinanceiraRepository;
     private static final Logger logger = LoggerFactory.getLogger(InstituicaoFinanceiraController.class);
+
+    public InstituicaoFinanceiraController(InstituicaoFinanceiraRepository instituicaoFinanceiraRepository) {
+        this.instituicaoFinanceiraRepository = instituicaoFinanceiraRepository;
+    }
 
     /**
      * Obtém todas as instituições financeiras.
@@ -31,8 +32,9 @@ public class InstituicaoFinanceiraController {
      * @return Lista de instituições financeiras
      */
     @GetMapping
-    public List<InstituicaoFinanceira> listar() {
-        return instituicaoFinanceiraRepository.findAll();
+    public ResponseEntity<List<InstituicaoFinanceira>> listar() {
+        List<InstituicaoFinanceira> instituicoes = instituicaoFinanceiraRepository.findAll();
+        return ResponseEntity.ok(instituicoes);
     }
 
     /**
@@ -44,7 +46,13 @@ public class InstituicaoFinanceiraController {
     @GetMapping("/{id}")
     public ResponseEntity<InstituicaoFinanceira> buscarPorId(@PathVariable Long id) {
         Optional<InstituicaoFinanceira> instituicao = instituicaoFinanceiraRepository.findById(id);
-        return instituicao.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        if (instituicao.isPresent()) {
+            logger.info("Instituição financeira encontrada: {}", instituicao.get());
+            return ResponseEntity.ok(instituicao.get());
+        } else {
+            logger.warn("Instituição financeira não encontrada: {}", id);
+            return ResponseEntity.notFound().build();
+        }
     }
 
     /**
@@ -68,9 +76,9 @@ public class InstituicaoFinanceiraController {
      * @return Instituição financeira atualizada ou 404 se não existir
      */
     @PutMapping("/{id}")
-    public ResponseEntity<InstituicaoFinanceira> atualizar(@PathVariable Long id,
-                                                           @RequestBody @Valid InstituicaoFinanceira instituicaoFinanceira) {
+    public ResponseEntity<InstituicaoFinanceira> atualizar(@PathVariable Long id, @RequestBody @Valid InstituicaoFinanceira instituicaoFinanceira) {
         if (!instituicaoFinanceiraRepository.existsById(id)) {
+            logger.warn("Instituição financeira não encontrada para atualização: {}", id);
             return ResponseEntity.notFound().build();
         }
         instituicaoFinanceira.setId(id);
@@ -88,6 +96,7 @@ public class InstituicaoFinanceiraController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
         if (!instituicaoFinanceiraRepository.existsById(id)) {
+            logger.warn("Instituição financeira não encontrada para remoção: {}", id);
             return ResponseEntity.notFound().build();
         }
         instituicaoFinanceiraRepository.deleteById(id);

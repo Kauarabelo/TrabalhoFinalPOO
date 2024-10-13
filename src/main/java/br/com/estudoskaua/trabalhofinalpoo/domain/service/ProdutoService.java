@@ -1,8 +1,7 @@
 package br.com.estudoskaua.trabalhofinalpoo.domain.service;
 
 import br.com.estudoskaua.trabalhofinalpoo.api.dto.ProdutoDTO;
-import br.com.estudoskaua.trabalhofinalpoo.domain.model.Leilao;
-import br.com.estudoskaua.trabalhofinalpoo.domain.model.Produto;
+import br.com.estudoskaua.trabalhofinalpoo.domain.model.*;
 import br.com.estudoskaua.trabalhofinalpoo.domain.repository.LeilaoRepository;
 import br.com.estudoskaua.trabalhofinalpoo.domain.repository.ProdutoRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,7 +16,6 @@ import java.util.List;
  */
 @Service
 public class ProdutoService {
-
     @Autowired
     private ProdutoRepository produtoRepository;
 
@@ -35,14 +33,26 @@ public class ProdutoService {
     public Produto criarProduto(ProdutoDTO produtoDTO) {
         Leilao leilao = leilaoRepository.findById(produtoDTO.getLeilaoId())
                 .orElseThrow(() -> new EntityNotFoundException("Leilão não encontrado"));
-
-        Produto produto = new Produto();
+        Produto produto;
+        if (produtoDTO.getTipoVeiculo() != null && !produtoDTO.getTipoVeiculo().isEmpty()) {
+            Veiculo veiculo = new Veiculo();
+            veiculo.setMarca(produtoDTO.getMarca());
+            veiculo.setModelo(produtoDTO.getModelo());
+            veiculo.setAnoDeFabricacao(produtoDTO.getAnoDeFabricacao());
+            veiculo.setTipoVeiculo(TipoVeiculo.valueOf(produtoDTO.getTipoVeiculo()));
+            produto = veiculo;
+        } else if (produtoDTO.getTipoInformatica() != null && !produtoDTO.getTipoInformatica().isEmpty()) {
+            DispositivoInformatica dispositivo = new DispositivoInformatica();
+            dispositivo.setTipoInformatica(TipoInformatica.valueOf(produtoDTO.getTipoInformatica()));
+            produto = dispositivo;
+        } else {
+            throw new IllegalArgumentException("Tipo de produto inválido.");
+        }
         produto.setNome(produtoDTO.getNome());
         produto.setDescricao(produtoDTO.getDescricao());
         produto.setValor(produtoDTO.getValor());
         produto.setImagemUrl(produtoDTO.getImagemUrl());
         produto.setLeilao(leilao);
-
         return produtoRepository.save(produto);
     }
 
