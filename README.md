@@ -3,35 +3,42 @@
 Este projeto implementa um sistema de leilão em Java utilizando Spring Boot. O sistema permite a criação, gerenciamento e consulta de leilões e produtos, bem como a associação de instituições financeiras.
 
 ## Índice
-
+- [Visão Geral](#visão-geral)
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Requisitos](#requisitos)
 - [Procedimentos de Build](#procedimentos-de-build)
 - [Execução do Projeto](#execução-do-projeto)
 - [Testes dos Endpoints](#testes-dos-endpoints)
 - [Endpoints Disponíveis](#endpoints-disponíveis)
+- [Diagrama de Classe](#diagrama-de-classe)
+- [Contribuições](#contribuições)
+- [Licença](#licença)
+
+## Visão Geral
+
+O **Sistema de Leilão** foi desenvolvido para facilitar a gestão e operação de leilões de dispositivos de informática e veículos apreendidos. O sistema oferece funcionalidades de cadastro, consulta, atualização e remoção de itens e leilões, além de permitir que clientes façam lances nos produtos disponíveis.
 
 ## Tecnologias Utilizadas
 
-- Java 17
-- Spring Boot
-- H2 Database (para testes)
-- Maven
-- Lombok
-- JUnit (para testes)
+- **Java 17**
+- **Spring Boot**
+- **H2 Database** (para testes)
+- **Maven**
+- **Lombok**
+- **JUnit** (para testes)
+- **Postman** (para testes de API)
 
 ## Requisitos
 
 Para executar este projeto, você precisará ter os seguintes requisitos instalados em sua máquina:
 
-- Java Development Kit (JDK) 17
-- Maven
-- Um IDE como IntelliJ IDEA ou Eclipse (opcional, mas recomendado)
+- **Java Development Kit (JDK) 17**
+- **Maven**
+- **IDE** como IntelliJ IDEA ou Eclipse (opcional, mas recomendado)
 
 ## Procedimentos de Build
 
-1. Clone o repositório:
-
+1. **Clone o repositório:**
    ```bash
    git clone https://github.com/Kauarabelo/TrabalhoFinalIPOO.git
 
@@ -50,7 +57,10 @@ Clique com o botão direito do mouse sobre a classe e selecione "Run 'Applicatio
 O aplicativo será iniciado na porta 8080 por padrão. Você pode acessar a API através da URL http://localhost:8080.
 
 ## Testes dos Endpoints
-Os testes dos endpoints podem ser realizados usando ferramenta como Postman. Segue o link do import em formato json. <a href="">Clique aqui!</a>
+Os testes dos endpoints podem ser realizados usando ferramentas como Postman. Segue o link do import em formato json: <a href="https://github.com/Kauarabelo/TrabalhoFinalPOO/blob/main/PostManCode.txt">Postman Collection.</a>
 
-## Lista com Endpoints
-A lista com os endpoints disponiveis podem ser acessadas no swagger. <a href="http://localhost:8080/swagger-ui/index.html">Clique aqui!</a>
+## Endpoints Disponíveis
+A lista completa de endpoints disponíveis pode ser acessada no Swagger. <a href="http://localhost:8080/swagger-ui/index.html">Swagger UI</a>
+
+## Diagrama de Classe
+![Diagrama de Classe](https://github.com/Kauarabelo/TrabalhoFinalPOO/blob/main/DiagramaDeClasses.png)
