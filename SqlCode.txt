@@ -1,0 +1,97 @@
+-- Criação das tabelas
+CREATE TABLE cliente (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    documento VARCHAR(11) NOT NULL
+);
+
+CREATE TABLE instituicao_financeira (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    cnpj VARCHAR(14) NOT NULL
+);
+
+CREATE TABLE leilao (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    descricao VARCHAR(255) NOT NULL,
+    data_inicio TIMESTAMP NOT NULL,
+    data_fim TIMESTAMP NOT NULL,
+    data_visitacao TIMESTAMP NOT NULL,
+    endereco VARCHAR(255) NOT NULL,
+    cidade VARCHAR(100) NOT NULL,
+    estado VARCHAR(2) NOT NULL,
+    status VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE produto (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    descricao VARCHAR(255) NOT NULL,
+    valor DOUBLE NOT NULL,
+    imagem_url VARCHAR(255),
+    tipo VARCHAR(50) NOT NULL,
+    especificacoes VARCHAR(255),
+    marca VARCHAR(100),
+    modelo VARCHAR(100),
+    ano INTEGER,
+    placa VARCHAR(7),
+    leilao_id BIGINT,
+    FOREIGN KEY (leilao_id) REFERENCES leilao(id)
+);
+
+CREATE TABLE lance (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    leilao_id BIGINT NOT NULL,
+    cliente_id BIGINT NOT NULL,
+    produto_id BIGINT NOT NULL,
+    valor DOUBLE NOT NULL,
+    data_lance TIMESTAMP NOT NULL,
+    FOREIGN KEY (leilao_id) REFERENCES leilao(id),
+    FOREIGN KEY (cliente_id) REFERENCES cliente(id),
+    FOREIGN KEY (produto_id) REFERENCES produto(id)
+);
+
+CREATE TABLE leilao_instituicao_financeira (
+    leilao_id BIGINT NOT NULL,
+    instituicao_financeira_id BIGINT NOT NULL,
+    PRIMARY KEY (leilao_id, instituicao_financeira_id),
+    FOREIGN KEY (leilao_id) REFERENCES leilao(id),
+    FOREIGN KEY (instituicao_financeira_id) REFERENCES instituicao_financeira(id)
+);
+
+-- Inserção de dados iniciais
+INSERT INTO cliente (nome, email, documento) VALUES 
+('João Silva', 'joao.silva@example.com', '12345678901'),
+('Maria Oliveira', 'maria.oliveira@example.com', '23456789012'),
+('Carlos Souza', 'carlos.souza@example.com', '34567890123'),
+('Ana Santos', 'ana.santos@example.com', '45678901234');
+
+INSERT INTO instituicao_financeira (nome, cnpj) VALUES 
+('Banco do Brasil', '00123456000189'),
+('Caixa Econômica Federal', '00345678000101'),
+('Itaú Unibanco', '00567890000123'),
+('Bradesco', '00789010000145');
+
+INSERT INTO leilao (descricao, data_inicio, data_fim, data_visitacao, endereco, cidade, estado, status) VALUES 
+('Leilão de Informática', '2024-12-01 10:00:00', '2024-12-10 18:00:00', '2024-12-05 14:00:00', 'Rua Exemplo, 123', 'São José dos Campos', 'SP', 'ABERTO'),
+('Leilão de Veículos', '2024-12-15 10:00:00', '2024-12-20 18:00:00', '2024-12-18 14:00:00', 'Av. Principal, 456', 'Rio de Janeiro', 'RJ', 'ABERTO');
+
+INSERT INTO produto (nome, descricao, valor, imagem_url, tipo, especificacoes, marca, modelo, ano, placa, leilao_id) VALUES 
+('Notebook Dell', 'Notebook de alta performance', 2500.00, 'http://example.com/notebook.jpg', 'dispositivo', 'Intel i7, 16GB RAM, 512GB SSD', 'Dell', 'Inspiron', NULL, NULL, 1),
+('Carro Fiat', 'Carro econômico', 30000.00, 'http://example.com/carro.jpg', 'veiculo', NULL, 'Fiat', 'Uno', 2022, 'ABC1234', 1),
+('Monitor Samsung', 'Monitor Full HD', 800.00, 'http://example.com/monitor.jpg', 'dispositivo', '24 polegadas, Full HD', 'Samsung', 'Curve', NULL, NULL, 1),
+('Moto Honda', 'Motocicleta esportiva', 15000.00, 'http://example.com/moto.jpg', 'veiculo', NULL, 'Honda', 'CBR', 2020, 'DEF5678', 2),
+('Switch Cisco', 'Switch de rede', 1200.00, 'http://example.com/switch.jpg', 'dispositivo', '24 portas, Gigabit Ethernet', 'Cisco', 'Catalyst', NULL, NULL, 1),
+('Caminhão Volvo', 'Caminhão de carga', 120000.00, 'http://example.com/caminhao.jpg', 'veiculo', NULL, 'Volvo', 'FH', 2018, 'GHI9101', 2);
+
+INSERT INTO leilao_instituicao_financeira (leilao_id, instituicao_financeira_id) VALUES 
+(1, 1), (1, 2), (2, 3), (2, 4);
+
+-- Inserção de lances
+INSERT INTO lance (leilao_id, cliente_id, produto_id, valor, data_lance) VALUES 
+(1, 1, 1, 2600.00, '2024-12-02 12:00:00'),
+(1, 2, 1, 2700.00, '2024-12-03 14:00:00'),
+(2, 3, 4, 15500.00, '2024-12-16 11:00:00'),
+(2, 4, 5, 1250.00, '2024-12-17 16:00:00'),
+(1, 1, 3, 850.00, '2024-12-04 09:00:00');

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Controlador para gerenciar clientes.
@@ -19,7 +20,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/clientes")
 public class ClienteController {
-
     private final ClienteRepository clienteRepository;
     private static final Logger logger = LoggerFactory.getLogger(ClienteController.class);
     private final ProdutoRepository produtoRepository;
@@ -65,7 +65,6 @@ public class ClienteController {
         if (!clienteRepository.existsById(clienteId)) {
             return ResponseEntity.notFound().build();
         }
-
         cliente.setId(clienteId);
         Cliente updatedCliente = clienteRepository.save(cliente);
         logger.info("Cliente atualizado: {}", updatedCliente);
@@ -83,7 +82,6 @@ public class ClienteController {
         if (!clienteRepository.existsById(clienteId)) {
             return ResponseEntity.notFound().build();
         }
-
         clienteRepository.deleteById(clienteId);
         logger.info("Cliente removido: {}", clienteId);
         return ResponseEntity.noContent().build();
@@ -100,8 +98,10 @@ public class ClienteController {
         if (!clienteRepository.existsById(clienteId)) {
             return ResponseEntity.notFound().build();
         }
-
-        List<Produto> produtos = produtoRepository.findAll(); // Filtrar por leilões ativos
+        List<Produto> produtos = produtoRepository.findAll().stream()
+                .filter(produto -> produto.getLeilao().isAtivo())
+                .collect(Collectors.toList());
         return ResponseEntity.ok(produtos);
     }
+
 }

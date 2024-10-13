@@ -32,6 +32,9 @@ public class Produto {
     @Column(name = "imagem_url")
     private String imagemUrl;
 
+    @NotNull(message = "Tipo não pode ser nulo")
+
+    @Column(name = "tipo", nullable = false)
     private String tipo; // 'dispositivo' ou 'veiculo'
     private String especificacoes; // Para dispositivos de informática
     private String marca; // Comum a ambos

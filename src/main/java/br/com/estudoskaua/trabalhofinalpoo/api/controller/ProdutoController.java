@@ -1,5 +1,6 @@
 package br.com.estudoskaua.trabalhofinalpoo.api.controller;
 
+import br.com.estudoskaua.trabalhofinalpoo.api.dto.ProdutoDTO;
 import br.com.estudoskaua.trabalhofinalpoo.domain.model.Leilao;
 import br.com.estudoskaua.trabalhofinalpoo.domain.model.Produto;
 import br.com.estudoskaua.trabalhofinalpoo.domain.repository.LeilaoRepository;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Controlador para gerenciar produtos.
@@ -68,15 +70,25 @@ public class ProdutoController {
      * @return ResponseEntity com o produto criado e o status HTTP correspondente.
      */
     @PostMapping
-    public ResponseEntity<Produto> criar(@RequestBody @Valid Produto produto) {
-        Optional<Leilao> leilaoOptional = leilaoRepository.findById(produto.getLeilao().getId());
+    public ResponseEntity<Produto> criar(@RequestBody @Valid ProdutoDTO produtoDTO) {
+        // Busca o leilão associado ao ID fornecido
+        Optional<Leilao> leilaoOptional = leilaoRepository.findById(produtoDTO.getLeilaoId());
 
         if (leilaoOptional.isEmpty()) {
-            logger.warn("Leilão não encontrado para vinculação.");
+            logger.warn("Leilão com ID {} não encontrado para vinculação.", produtoDTO.getLeilaoId());
             return ResponseEntity.badRequest().body(null);
         }
 
-        produto.setLeilao(leilaoOptional.get());
+        Leilao leilao = leilaoOptional.get();
+
+        // Converte ProdutoDTO para entidade Produto
+        Produto produto = new Produto();
+        produto.setNome(produtoDTO.getNome());
+        produto.setDescricao(produtoDTO.getDescricao());
+        produto.setValor(produtoDTO.getValor());
+        produto.setImagemUrl(produtoDTO.getImagemUrl());
+        produto.setLeilao(leilao);  // Associa o leilão encontrado
+
         Produto savedProduto = produtoRepository.save(produto);
         logger.info("Produto criado e vinculado ao leilão: {}", savedProduto);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProduto);
@@ -166,4 +178,34 @@ public class ProdutoController {
         logger.info("Produto removido: {}", id);
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * Busca produtos de um leilão específico aplicando filtros opcionais.
+     *
+     * @param leilaoId      ID do leilão.
+     * @param tipo          Tipo de produto (dispositivo ou veículo) - opcional.
+     * @param minValor      Valor mínimo do produto - opcional.
+     * @param maxValor      Valor máximo do produto - opcional.
+     * @param palavraChave  Palavra-chave contida no nome do produto - opcional.
+     * @return ResponseEntity contendo a lista de produtos filtrados.
+     */
+    @GetMapping("/leiloes/{leilaoId}/produtos")
+    public ResponseEntity<List<Produto>> buscarProdutosPorFiltros(
+            @PathVariable Long leilaoId,
+            @RequestParam(required = false) String tipo,
+            @RequestParam(required = false) Double minValor,
+            @RequestParam(required = false) Double maxValor,
+            @RequestParam(required = false) String palavraChave) {
+
+        List<Produto> produtos = produtoRepository.findAll().stream()
+                .filter(produto -> produto.getLeilao().getId().equals(leilaoId))
+                .filter(produto -> tipo == null || produto.getTipo().equalsIgnoreCase(tipo))
+                .filter(produto -> minValor == null || produto.getValor() >= minValor)
+                .filter(produto -> maxValor == null || produto.getValor() <= maxValor)
+                .filter(produto -> palavraChave == null || produto.getNome().contains(palavraChave))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(produtos);
+    }
+
 }
