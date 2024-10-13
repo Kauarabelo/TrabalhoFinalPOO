@@ -59,6 +59,12 @@ Para executar este projeto, você precisará ter os seguintes requisitos instala
 ## Testes dos Endpoints
 Os testes dos endpoints podem ser realizados usando ferramentas como Postman. Segue o link do import em formato json: <a href="https://github.com/Kauarabelo/TrabalhoFinalPOO/blob/main/PostManCode.txt">Postman Collection.</a>
 
+
+
+## Execução do Projeto
+1. Iniciar[_{{{CITATION{{{_1{](https://github.com/Sridatta19/postman-docsite/tree/d00598c5dbec8e5df04855ef0c3cc7bffb64c28b/docs%2Fpostman_collection.js)
+
+
 ## Endpoints Disponíveis
 A lista completa de endpoints disponíveis pode ser acessada no Swagger. <a href="http://localhost:8080/swagger-ui/index.html">Swagger UI</a>
 
