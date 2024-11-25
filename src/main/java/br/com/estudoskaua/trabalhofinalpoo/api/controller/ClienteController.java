@@ -1,13 +1,15 @@
 package br.com.estudoskaua.trabalhofinalpoo.api.controller;
 
 import br.com.estudoskaua.trabalhofinalpoo.domain.model.Cliente;
-import br.com.estudoskaua.trabalhofinalpoo.domain.model.Leilao; // Importação do modelo Leilao
+import br.com.estudoskaua.trabalhofinalpoo.domain.model.Leilao;
 import br.com.estudoskaua.trabalhofinalpoo.domain.model.Produto;
+import br.com.estudoskaua.trabalhofinalpoo.domain.model.Status;
 import br.com.estudoskaua.trabalhofinalpoo.domain.repository.ClienteRepository;
 import br.com.estudoskaua.trabalhofinalpoo.domain.repository.LanceRepository;
-import br.com.estudoskaua.trabalhofinalpoo.domain.repository.LeilaoRepository; // Importação do repositório Leilao
+import br.com.estudoskaua.trabalhofinalpoo.domain.repository.LeilaoRepository;
 import br.com.estudoskaua.trabalhofinalpoo.domain.repository.ProdutoRepository;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -16,27 +18,21 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Controlador para gerenciar clientes.
  */
 @RestController
 @RequestMapping("/clientes")
+@RequiredArgsConstructor
 public class ClienteController {
+
     private final ClienteRepository clienteRepository;
     private final ProdutoRepository produtoRepository;
-    private final LeilaoRepository leilaoRepository; // Adição do repositório de Leilao
-
-    private static final Logger logger = LoggerFactory.getLogger(ClienteController.class);
+    private final LeilaoRepository leilaoRepository;
     private final LanceRepository lanceRepository;
 
-    public ClienteController(ClienteRepository clienteRepository, ProdutoRepository produtoRepository, LeilaoRepository leilaoRepository, LanceRepository lanceRepository) {
-        this.clienteRepository = clienteRepository;
-        this.produtoRepository = produtoRepository;
-        this.leilaoRepository = leilaoRepository; // Inicialização do repositório de Leilao
-        this.lanceRepository = lanceRepository;
-    }
+    private static final Logger logger = LoggerFactory.getLogger(ClienteController.class);
 
     /**
      * Listar todos os clientes.
@@ -82,11 +78,11 @@ public class ClienteController {
     }
 
     /**
-    * Remover um cliente.
-    *
-    * @param clienteId ID do cliente.
-    * @return Resposta indicando se a remoção foi bem-sucedida.
-    */
+     * Remover um cliente.
+     *
+     * @param clienteId ID do cliente.
+     * @return Resposta indicando se a remoção foi bem-sucedida.
+     */
     @DeleteMapping("/{clienteId}")
     @Transactional
     public ResponseEntity<Void> removerCliente(@PathVariable Long clienteId) {
@@ -117,13 +113,21 @@ public class ClienteController {
             logger.warn("Cliente não encontrado: {}", clienteId);
             return ResponseEntity.notFound().build();
         }
-        List<Produto> produtos = produtoRepository.findAll().stream()
-                .filter(produto -> {
-                    Long leilaoId = produto.getLeilaoId();
-                    Leilao leilao = leilaoRepository.findById(leilaoId).orElse(null);
-                    return leilao != null && leilao.isAtivo(); // Verifique se o leilão é ativo
-                })
-                .collect(Collectors.toList());
+
+        // Buscar os leilões associados ao cliente
+        List<Leilao> leiloes = leilaoRepository.findByCliente_Id(clienteId);  // Método corrigido
+
+        if (leiloes.isEmpty()) {
+            logger.warn("Nenhum leilão encontrado para o cliente: {}", clienteId);
+            return ResponseEntity.notFound().build();
+        }
+
+        // Buscar produtos dos leilões ativos (status EM_ANDAMENTO, por exemplo)
+        List<Produto> produtos = produtoRepository.findByLeilaoIdAndLeilaoStatus(
+                leiloes.get(0).getId(), Status.EM_ANDAMENTO);  // Exemplo de status, você pode personalizar conforme necessário
+
         return ResponseEntity.ok(produtos);
     }
+
+
 }

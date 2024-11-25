@@ -8,15 +8,20 @@ import br.com.estudoskaua.trabalhofinalpoo.domain.model.Status;
 import br.com.estudoskaua.trabalhofinalpoo.domain.repository.InstituicaoFinanceiraRepository;
 import br.com.estudoskaua.trabalhofinalpoo.domain.repository.LeilaoRepository;
 import br.com.estudoskaua.trabalhofinalpoo.domain.repository.ProdutoRepository;
+import br.com.estudoskaua.trabalhofinalpoo.domain.service.ExportacaoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Controlador para gerenciar leilões.
@@ -24,15 +29,21 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/leiloes")
 public class LeilaoController {
+
     private final LeilaoRepository leilaoRepository;
     private final ProdutoRepository produtoRepository;
     private final InstituicaoFinanceiraRepository instituicaoFinanceiraRepository;
+    private final ExportacaoService exportacaoService;
+
     private static final Logger logger = LoggerFactory.getLogger(LeilaoController.class);
 
-    public LeilaoController(LeilaoRepository leilaoRepository, ProdutoRepository produtoRepository, InstituicaoFinanceiraRepository instituicaoFinanceiraRepository) {
+    public LeilaoController(LeilaoRepository leilaoRepository, ProdutoRepository produtoRepository,
+                            InstituicaoFinanceiraRepository instituicaoFinanceiraRepository,
+                            ExportacaoService exportacaoService) {
         this.leilaoRepository = leilaoRepository;
         this.produtoRepository = produtoRepository;
         this.instituicaoFinanceiraRepository = instituicaoFinanceiraRepository;
+        this.exportacaoService = exportacaoService;
     }
 
     /**
@@ -94,46 +105,6 @@ public class LeilaoController {
     }
 
     /**
-     * Associar uma instituição financeira a um leilão.
-     *
-     * @param leilaoId      ID do leilão.
-     * @param instituicaoId ID da instituição financeira.
-     * @return ResponseEntity com o leilão atualizado ou 404 Not Found.
-     */
-    @PostMapping("/{leilaoId}/instituicoes-financeiras/{instituicaoId}")
-    public ResponseEntity<Leilao> associarInstituicaoFinanceira(@PathVariable Long leilaoId, @PathVariable Long instituicaoId) {
-        Optional<Leilao> leilaoOptional = leilaoRepository.findById(leilaoId);
-        Optional<InstituicaoFinanceira> instituicaoOptional = instituicaoFinanceiraRepository.findById(instituicaoId);
-        if (leilaoOptional.isEmpty() || instituicaoOptional.isEmpty()) {
-            logger.warn("Leilão ou Instituição financeira não encontrados: {} - {}", leilaoId, instituicaoId);
-            return ResponseEntity.notFound().build();
-        }
-        Leilao leilao = leilaoOptional.get();
-        leilao.getInstituicoesFinanceiras().add(instituicaoOptional.get());
-        leilaoRepository.save(leilao);
-        logger.info("Instituição financeira associada ao leilão: {}", leilao.getId());
-        return ResponseEntity.ok(leilao);
-    }
-
-    /**
-     * Listar instituições financeiras associadas a um leilão.
-     *
-     * @param leilaoId ID do leilão.
-     * @return Lista de instituições financeiras ou 404 Not Found.
-     */
-    @GetMapping("/{leilaoId}/instituicoes-financeiras")
-    public ResponseEntity<List<InstituicaoFinanceira>> listarInstituicoesFinanceiras(@PathVariable Long leilaoId) {
-        Optional<Leilao> leilaoOptional = leilaoRepository.findById(leilaoId);
-        if (leilaoOptional.isEmpty()) {
-            logger.warn("Leilão não encontrado: {}", leilaoId);
-            return ResponseEntity.notFound().build();
-        }
-        List<InstituicaoFinanceira> instituicoes = leilaoOptional.get().getInstituicoesFinanceiras();
-        logger.info("Instituições financeiras associadas ao leilão {}: {}", leilaoId, instituicoes.size());
-        return ResponseEntity.ok(instituicoes);
-    }
-
-    /**
      * Atualiza o status de um leilão com base na data e hora atuais.
      *
      * @param leilao Leilão a ser atualizado.
@@ -146,7 +117,6 @@ public class LeilaoController {
             leilao.setStatus(Status.FINALIZADO);
         } else {
             leilao.setStatus(Status.EM_ANDAMENTO);
-
         }
     }
 
@@ -186,4 +156,30 @@ public class LeilaoController {
                 });
     }
 
+    /**
+     * Endpoint para gerar e exportar o arquivo .DET de todos os leilões.
+     * @return Arquivo .DET gerado.
+     */
+    @GetMapping("/exportar")
+    public ResponseEntity<byte[]> exportarLeiloes() {
+        try {
+            List<Leilao> leiloes = leilaoRepository.findAll();
+            leiloes.forEach(this::atualizarStatusLeilao); // Atualiza o status de todos os leilões
+
+            // Chama o serviço de exportação para gerar o arquivo .DET
+            String caminhoArquivo = exportacaoService.gerarArquivoDet(leiloes);
+
+            // Lê o arquivo gerado
+            Path path = Paths.get(caminhoArquivo);
+            byte[] arquivoBytes = Files.readAllBytes(path);
+
+            // Retorna o arquivo para o cliente
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=leiloes_exportados.det")
+                    .body(arquivoBytes);
+        } catch (IOException e) {
+            logger.error("Erro ao gerar o arquivo .DET: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao gerar o arquivo .DET".getBytes());
+        }
+    }
 }

@@ -18,6 +18,7 @@
 
     <properties>
         <java.version>17</java.version>
+        <lombok.version>1.18.26</lombok.version> <!-- Atualizado para a versão mais recente -->
     </properties>
 
     <dependencies>
@@ -35,6 +36,11 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.14.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
@@ -47,6 +53,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version> <!-- Usando a versão definida nas propriedades -->
+            <scope>provided</scope>
         </dependency>
 
         <!-- Hibernate Validator -->
@@ -73,7 +87,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -85,6 +103,21 @@
                 <configuration>
                     <mainClass>br.com.estudoskaua.trabalhofinalpoo.TrabalhoFinalPooApplication</mainClass>
                 </configuration>
+            </plugin>
+
+            <!-- Plugin de cobertura de testes (Jacoco) -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.8</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

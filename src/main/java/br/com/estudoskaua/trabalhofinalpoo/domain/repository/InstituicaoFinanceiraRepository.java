@@ -19,6 +19,7 @@ import java.util.List;
  */
 @Repository
 public interface InstituicaoFinanceiraRepository extends JpaRepository<InstituicaoFinanceira, Long> {
-    List<InstituicaoFinanceira> findAllById(Iterable<Long> ids);
 
+    // Método para buscar instituições financeiras por uma lista de IDs
+    List<InstituicaoFinanceira> findAllById(Iterable<Long> ids);
 }

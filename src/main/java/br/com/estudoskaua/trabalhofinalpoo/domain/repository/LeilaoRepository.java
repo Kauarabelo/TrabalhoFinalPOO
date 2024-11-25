@@ -4,6 +4,8 @@ import br.com.estudoskaua.trabalhofinalpoo.domain.model.Leilao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * Repositório para a entidade Leilão.
  * <p>
@@ -17,4 +19,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface LeilaoRepository extends JpaRepository<Leilao, Long> {
+    List<Leilao> findByCliente_Id(Long clienteId);  // Alterar aqui
 }
+

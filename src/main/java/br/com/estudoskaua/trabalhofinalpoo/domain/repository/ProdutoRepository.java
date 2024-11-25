@@ -1,6 +1,6 @@
 package br.com.estudoskaua.trabalhofinalpoo.domain.repository;
 
-import br.com.estudoskaua.trabalhofinalpoo.domain.model.Produto;
+import br.com.estudoskaua.trabalhofinalpoo.domain.model.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,6 +22,7 @@ import java.util.Optional;
  */
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
+
     @Query("SELECT p FROM Produto p LEFT JOIN FETCH p.lances")
     List<Produto> findAllProdutosComLances();
 
@@ -29,4 +30,9 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     Optional<Produto> findByIdComLances(@Param("id") Long id);
 
     List<Produto> findAllById(Iterable<Long> ids);
+
+    // Ajuste do método para buscar por ID de Leilão e Status
+    List<Produto> findByLeilaoIdAndLeilaoStatus(Long leilaoId, Status status);
+
 }
+

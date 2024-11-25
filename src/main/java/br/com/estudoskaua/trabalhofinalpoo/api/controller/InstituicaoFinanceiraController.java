@@ -2,10 +2,7 @@ package br.com.estudoskaua.trabalhofinalpoo.api.controller;
 
 import br.com.estudoskaua.trabalhofinalpoo.domain.model.InstituicaoFinanceira;
 import br.com.estudoskaua.trabalhofinalpoo.domain.repository.InstituicaoFinanceiraRepository;
-import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,94 +10,63 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Controlador para gerenciar operações relacionadas a instituições financeiras.
+ * Controlador para gerenciar Instituições Financeiras.
  */
 @RestController
 @RequestMapping("/instituicoes")
 public class InstituicaoFinanceiraController {
 
-    private final InstituicaoFinanceiraRepository instituicaoFinanceiraRepository;
-    private static final Logger logger = LoggerFactory.getLogger(InstituicaoFinanceiraController.class);
-
-    public InstituicaoFinanceiraController(InstituicaoFinanceiraRepository instituicaoFinanceiraRepository) {
-        this.instituicaoFinanceiraRepository = instituicaoFinanceiraRepository;
-    }
+    // Injeção do repositório de Instituição Financeira
+    @Autowired
+    private InstituicaoFinanceiraRepository instituicaoFinanceiraRepository;
 
     /**
-     * Obtém todas as instituições financeiras.
+     * Lista todas as instituições financeiras.
      *
-     * @return Lista de instituições financeiras
+     * @return Lista de todas as instituições financeiras.
      */
     @GetMapping
-    public ResponseEntity<List<InstituicaoFinanceira>> listar() {
+    public ResponseEntity<List<InstituicaoFinanceira>> listarTodas() {
         List<InstituicaoFinanceira> instituicoes = instituicaoFinanceiraRepository.findAll();
         return ResponseEntity.ok(instituicoes);
     }
 
     /**
-     * Obtém uma instituição financeira pelo ID.
+     * Busca uma instituição financeira por ID.
      *
-     * @param id ID da instituição financeira
-     * @return Instituição financeira encontrada ou 404 se não existir
+     * @param id ID da instituição financeira.
+     * @return Instituição financeira encontrada ou 404 Not Found.
      */
     @GetMapping("/{id}")
     public ResponseEntity<InstituicaoFinanceira> buscarPorId(@PathVariable Long id) {
         Optional<InstituicaoFinanceira> instituicao = instituicaoFinanceiraRepository.findById(id);
-        if (instituicao.isPresent()) {
-            logger.info("Instituição financeira encontrada: {}", instituicao.get());
-            return ResponseEntity.ok(instituicao.get());
-        } else {
-            logger.warn("Instituição financeira não encontrada: {}", id);
-            return ResponseEntity.notFound().build();
-        }
+        return instituicao.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
      * Cria uma nova instituição financeira.
      *
-     * @param instituicaoFinanceira Instituição financeira a ser criada
-     * @return Instituição financeira criada
+     * @param instituicaoFinanceira A instituição financeira a ser criada.
+     * @return ResponseEntity com a instituição financeira criada.
      */
     @PostMapping
-    public ResponseEntity<InstituicaoFinanceira> criar(@RequestBody @Valid InstituicaoFinanceira instituicaoFinanceira) {
-        InstituicaoFinanceira novaInstituicao = instituicaoFinanceiraRepository.save(instituicaoFinanceira);
-        logger.info("Instituição financeira criada: {}", novaInstituicao);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novaInstituicao);
+    public ResponseEntity<InstituicaoFinanceira> criar(@RequestBody InstituicaoFinanceira instituicaoFinanceira) {
+        InstituicaoFinanceira instituicaoSalva = instituicaoFinanceiraRepository.save(instituicaoFinanceira);
+        return ResponseEntity.status(201).body(instituicaoSalva);
     }
 
     /**
-     * Atualiza uma instituição financeira existente.
+     * Deleta uma instituição financeira por ID.
      *
-     * @param id ID da instituição financeira a ser atualizada
-     * @param instituicaoFinanceira Instituição financeira com os novos dados
-     * @return Instituição financeira atualizada ou 404 se não existir
-     */
-    @PutMapping("/{id}")
-    public ResponseEntity<InstituicaoFinanceira> atualizar(@PathVariable Long id, @RequestBody @Valid InstituicaoFinanceira instituicaoFinanceira) {
-        if (!instituicaoFinanceiraRepository.existsById(id)) {
-            logger.warn("Instituição financeira não encontrada para atualização: {}", id);
-            return ResponseEntity.notFound().build();
-        }
-        instituicaoFinanceira.setId(id);
-        InstituicaoFinanceira instituicaoAtualizada = instituicaoFinanceiraRepository.save(instituicaoFinanceira);
-        logger.info("Instituição financeira atualizada: {}", instituicaoAtualizada);
-        return ResponseEntity.ok(instituicaoAtualizada);
-    }
-
-    /**
-     * Remove uma instituição financeira pelo ID.
-     *
-     * @param id ID da instituição financeira a ser removida
-     * @return 204 No Content se removido com sucesso, ou 404 se não existir
+     * @param id ID da instituição financeira a ser deletada.
+     * @return ResponseEntity com status adequado.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
         if (!instituicaoFinanceiraRepository.existsById(id)) {
-            logger.warn("Instituição financeira não encontrada para remoção: {}", id);
             return ResponseEntity.notFound().build();
         }
         instituicaoFinanceiraRepository.deleteById(id);
-        logger.info("Instituição financeira removida: {}", id);
         return ResponseEntity.noContent().build();
     }
 }

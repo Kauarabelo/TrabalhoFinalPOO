@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * Classe de tratamento de exceções personalizada para a aplicação.
@@ -26,7 +26,7 @@ public class CustomExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(new Date(), "Erro interno do servidor", request.getDescription(false));
+        ErrorResponse errorResponse = new ErrorResponse(LocalDateTime.now(), "Erro interno do servidor", request.getDescription(false));
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -39,7 +39,7 @@ public class CustomExceptionHandler {
      */
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(new Date(), "Um valor nulo foi encontrado", request.getDescription(false));
+        ErrorResponse errorResponse = new ErrorResponse(LocalDateTime.now(), "Um valor nulo foi encontrado", request.getDescription(false));
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
@@ -52,7 +52,7 @@ public class CustomExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(new Date(), "Argumento inválido fornecido", request.getDescription(false));
+        ErrorResponse errorResponse = new ErrorResponse(LocalDateTime.now(), "Argumento inválido fornecido", request.getDescription(false));
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }

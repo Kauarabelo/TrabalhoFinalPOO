@@ -9,13 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 /**
  * Serviço responsável pela gestão dos produtos no sistema de leilão.
  */
 @Service
 public class ProdutoService {
+
     @Autowired
     private ProdutoRepository produtoRepository;
 
@@ -33,27 +32,57 @@ public class ProdutoService {
     public Produto criarProduto(ProdutoDTO produtoDTO) {
         Leilao leilao = leilaoRepository.findById(produtoDTO.getLeilaoId())
                 .orElseThrow(() -> new EntityNotFoundException("Leilão não encontrado"));
-        Produto produto;
-        if (produtoDTO.getTipoVeiculo() != null && !produtoDTO.getTipoVeiculo().isEmpty()) {
-            Veiculo veiculo = new Veiculo();
-            veiculo.setMarca(produtoDTO.getMarca());
-            veiculo.setModelo(produtoDTO.getModelo());
-            veiculo.setAnoDeFabricacao(produtoDTO.getAnoDeFabricacao());
-            veiculo.setTipoVeiculo(TipoVeiculo.valueOf(produtoDTO.getTipoVeiculo()));
-            produto = veiculo;
-        } else if (produtoDTO.getTipoInformatica() != null && !produtoDTO.getTipoInformatica().isEmpty()) {
-            DispositivoInformatica dispositivo = new DispositivoInformatica();
-            dispositivo.setTipoInformatica(TipoInformatica.valueOf(produtoDTO.getTipoInformatica()));
-            produto = dispositivo;
-        } else {
-            throw new IllegalArgumentException("Tipo de produto inválido.");
-        }
+
+        Produto produto = criarProdutoBaseadoNoTipo(produtoDTO);
         produto.setNome(produtoDTO.getNome());
         produto.setDescricao(produtoDTO.getDescricao());
         produto.setValor(produtoDTO.getValor());
         produto.setImagemUrl(produtoDTO.getImagemUrl());
         produto.setLeilao(leilao);
         return produtoRepository.save(produto);
+    }
+
+    /**
+     * Cria o produto com base no tipo informado no DTO.
+     *
+     * @param produtoDTO Dados do produto
+     * @return O produto criado (Veículo ou Dispositivo)
+     */
+    private Produto criarProdutoBaseadoNoTipo(ProdutoDTO produtoDTO) {
+        if (produtoDTO.getTipoVeiculo() != null && !produtoDTO.getTipoVeiculo().isEmpty()) {
+            return criarVeiculo(produtoDTO);
+        } else if (produtoDTO.getTipoInformatica() != null && !produtoDTO.getTipoInformatica().isEmpty()) {
+            return criarDispositivoInformatica(produtoDTO);
+        } else {
+            throw new IllegalArgumentException("Tipo de produto inválido.");
+        }
+    }
+
+    /**
+     * Cria um novo veículo com base nos dados do DTO.
+     *
+     * @param produtoDTO Dados do produto
+     * @return O veículo criado
+     */
+    private Veiculo criarVeiculo(ProdutoDTO produtoDTO) {
+        Veiculo veiculo = new Veiculo();
+        veiculo.setMarca(produtoDTO.getMarca());
+        veiculo.setModelo(produtoDTO.getModelo());
+        veiculo.setAnoDeFabricacao(produtoDTO.getAnoDeFabricacao());
+        veiculo.setTipoVeiculo(TipoVeiculo.valueOf(produtoDTO.getTipoVeiculo()));
+        return veiculo;
+    }
+
+    /**
+     * Cria um novo dispositivo de informática com base nos dados do DTO.
+     *
+     * @param produtoDTO Dados do produto
+     * @return O dispositivo de informática criado
+     */
+    private DispositivoInformatica criarDispositivoInformatica(ProdutoDTO produtoDTO) {
+        DispositivoInformatica dispositivo = new DispositivoInformatica();
+        dispositivo.setTipoInformatica(TipoInformatica.valueOf(produtoDTO.getTipoInformatica()));
+        return dispositivo;
     }
 
     /**
@@ -64,7 +93,7 @@ public class ProdutoService {
      * @throws IllegalStateException Se o produto já foi vendido
      */
     @Transactional
-    public void desassociarProduto(Long produtoId) {
+    public void removerProdutoDoLeilao(Long produtoId) {
         Produto produto = produtoRepository.findById(produtoId)
                 .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
         if (produto.isVendido()) {

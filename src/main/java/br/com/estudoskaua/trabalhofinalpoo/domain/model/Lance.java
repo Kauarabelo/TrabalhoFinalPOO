@@ -1,7 +1,16 @@
 package br.com.estudoskaua.trabalhofinalpoo.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 import java.time.LocalDateTime;
 
 /**
@@ -9,36 +18,43 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "lance")
+@Getter
+@Setter
+@EqualsAndHashCode(of = "id")
+@ToString
 public class Lance {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "leilao_id", nullable = false)
     private Leilao leilao;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "cliente_id", nullable = false)
+    @JsonIgnoreProperties({"produtos", "instituicoesFinanceiras"}) // Evitar problemas de serialização
     private Cliente cliente;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "produto_id", nullable = false)
+    @JsonBackReference
     private Produto produto;
 
     @NotNull(message = "Valor do lance não pode ser nulo")
+    @Min(value = 0, message = "Valor do lance deve ser maior que zero")
     private Double valor;
 
     @NotNull(message = "Data do lance não pode ser nula")
-    @Column(name = "data_lance")
+    @Column(name = "data_lance", nullable = false, updatable = false)
     private LocalDateTime dataLance;
 
     /**
      * Construtor padrão que inicializa a data do lance com a data/hora atual.
      */
     public Lance() {
-        this.dataLance = LocalDateTime.now(); // Inicializa com a data/hora atual
+        this.dataLance = LocalDateTime.now();
     }
 
     /**
@@ -50,60 +66,13 @@ public class Lance {
      * @param valor   O valor do lance
      */
     public Lance(Leilao leilao, Cliente cliente, Produto produto, Double valor) {
+        if (valor == null || valor <= 0) {
+            throw new IllegalArgumentException("Valor do lance deve ser maior que zero.");
+        }
         this.leilao = leilao;
         this.cliente = cliente;
         this.produto = produto;
         this.valor = valor;
-        this.dataLance = LocalDateTime.now(); // Define a data/hora no momento da criação do lance
-    }
-
-    // Getters e Setters
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Double getValor() {
-        return valor;
-    }
-
-    public void setValor(Double valor) {
-        this.valor = valor;
-    }
-
-    public Produto getProduto() {
-        return produto;
-    }
-
-    public void setProduto(Produto produto) {
-        this.produto = produto;
-    }
-
-    public Cliente getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
-    }
-
-    public LocalDateTime getDataLance() {
-        return dataLance;
-    }
-
-    public void setDataLance(LocalDateTime dataLance) {
-        this.dataLance = dataLance;
-    }
-
-    public Leilao getLeilao() {
-        return leilao;
-    }
-
-    public void setLeilao(Leilao leilao) {
-        this.leilao = leilao;
+        this.dataLance = LocalDateTime.now();
     }
 }

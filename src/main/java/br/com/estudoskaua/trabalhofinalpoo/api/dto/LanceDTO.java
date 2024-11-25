@@ -1,9 +1,17 @@
 package br.com.estudoskaua.trabalhofinalpoo.api.dto;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
+import lombok.Data;
+
 import java.time.LocalDateTime;
 
+/**
+ * Data Transfer Object (DTO) para representar um lance em um leilão.
+ * <p>
+ * Utilizado para transferir informações sobre lances em produtos.
+ * </p>
+ */
+@Data
 public class LanceDTO {
 
     @NotNull(message = "ID do cliente é obrigatório")
@@ -18,38 +26,4 @@ public class LanceDTO {
 
     @NotNull(message = "Data do lance é obrigatória")
     private LocalDateTime dataLance;
-
-    // Getters e Setters
-
-    public Long getClienteId() {
-        return clienteId;
-    }
-
-    public void setClienteId(Long clienteId) {
-        this.clienteId = clienteId;
-    }
-
-    public Long getProdutoId() {
-        return produtoId;
-    }
-
-    public void setProdutoId(Long produtoId) {
-        this.produtoId = produtoId;
-    }
-
-    public Double getValor() {
-        return valor;
-    }
-
-    public void setValor(Double valor) {
-        this.valor = valor;
-    }
-
-    public LocalDateTime getDataLance() {
-        return dataLance;
-    }
-
-    public void setDataLance(LocalDateTime dataLance) {
-        this.dataLance = dataLance;
-    }
 }

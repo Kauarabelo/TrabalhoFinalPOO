@@ -1,15 +1,25 @@
+-- Excluir tabelas com dependências, em ordem correta
+DROP TABLE IF EXISTS leilao_instituicao_financeira;
+DROP TABLE IF EXISTS lance;
+DROP TABLE IF EXISTS produto;
+DROP TABLE IF EXISTS leilao;
+DROP TABLE IF EXISTS instituicao_financeira;
+DROP TABLE IF EXISTS cliente;
+
 -- Criação das tabelas
 CREATE TABLE cliente (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
-    documento VARCHAR(11) NOT NULL
+    documento VARCHAR(11) NOT NULL,
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE instituicao_financeira (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
-    cnpj VARCHAR(14) NOT NULL
+    cnpj VARCHAR(14) NOT NULL,
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE leilao (
@@ -21,12 +31,12 @@ CREATE TABLE leilao (
     endereco VARCHAR(255) NOT NULL,
     cidade VARCHAR(100) NOT NULL,
     estado VARCHAR(2) NOT NULL,
-    status VARCHAR(20) NOT NULL
+    status ENUM('ABERTO', 'EM_ANDAMENTO', 'FECHADO') NOT NULL
 );
 
 CREATE TABLE produto (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    dtype VARCHAR(31) NOT NULL,
+    dtype ENUM('DispositivoInformatica', 'Veiculo') NOT NULL,
     nome VARCHAR(100) NOT NULL,
     descricao VARCHAR(255) NOT NULL,
     valor DOUBLE NOT NULL,
@@ -42,7 +52,8 @@ CREATE TABLE produto (
     ano_de_fabricacao INTEGER,
     vendido BOOLEAN,
     leilao_id BIGINT,
-    FOREIGN KEY (leilao_id) REFERENCES leilao(id)
+    FOREIGN KEY (leilao_id) REFERENCES leilao(id),
+    CHECK ( (dtype = 'DispositivoInformatica' AND placa IS NULL) OR (dtype = 'Veiculo' AND placa IS NOT NULL) )
 );
 
 CREATE TABLE lance (
@@ -66,17 +77,17 @@ CREATE TABLE leilao_instituicao_financeira (
 );
 
 -- Inserção de dados iniciais
-INSERT INTO cliente (nome, email, documento) VALUES
-('João Silva', 'joao.silva@example.com', '12345678901'),
-('Maria Oliveira', 'maria.oliveira@example.com', '23456789012'),
-('Carlos Souza', 'carlos.souza@example.com', '34567890123'),
-('Ana Santos', 'ana.santos@example.com', '45678901234');
+INSERT INTO cliente (nome, email, documento, data_cadastro) VALUES
+('João Silva', 'joao.silva@example.com', '12345678901', CURRENT_TIMESTAMP),
+('Maria Oliveira', 'maria.oliveira@example.com', '23456789012', CURRENT_TIMESTAMP),
+('Carlos Souza', 'carlos.souza@example.com', '34567890123', CURRENT_TIMESTAMP),
+('Ana Santos', 'ana.santos@example.com', '45678901234', CURRENT_TIMESTAMP);
 
-INSERT INTO instituicao_financeira (nome, cnpj) VALUES
-('Banco do Brasil', '00123456000189'),
-('Caixa Econômica Federal', '00345678000101'),
-('Itaú Unibanco', '00567890000123'),
-('Bradesco', '00789010000145');
+INSERT INTO instituicao_financeira (nome, cnpj, data_cadastro) VALUES
+('Banco do Brasil', '00123456000189', CURRENT_TIMESTAMP),
+('Caixa Econômica Federal', '00345678000101', CURRENT_TIMESTAMP),
+('Itaú Unibanco', '00567890000123', CURRENT_TIMESTAMP),
+('Bradesco', '00789010000145', CURRENT_TIMESTAMP);
 
 INSERT INTO leilao (descricao, data_inicio, data_fim, data_visitacao, endereco, cidade, estado, status) VALUES
 ('Leilão de Informática', '2024-12-01 10:00:00', '2024-12-10 18:00:00', '2024-12-05 14:00:00', 'Rua Exemplo, 123', 'São José dos Campos', 'SP', 'ABERTO'),

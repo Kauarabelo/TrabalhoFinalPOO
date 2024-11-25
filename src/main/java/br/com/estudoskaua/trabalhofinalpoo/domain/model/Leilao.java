@@ -6,6 +6,10 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * Representa um leilão que contém produtos e instituições financeiras associadas.
@@ -13,6 +17,10 @@ import java.util.List;
 @Entity
 @Table(name = "leilao")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "produtos"})
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
 public class Leilao {
 
     @Id
@@ -46,6 +54,11 @@ public class Leilao {
     @NotNull(message = "Estado não pode estar vazio")
     @Column(name = "estado")
     private String estado;
+
+    @ManyToOne
+    @JoinColumn(name = "cliente_id")
+    @JsonIgnoreProperties({"produtos", "instituicoesFinanceiras"}) // Evitar problemas de serialização
+    private Cliente cliente;
 
     @OneToMany(mappedBy = "leilao", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnoreProperties("leilao") // Ignora leilao para evitar referência circular
@@ -84,106 +97,29 @@ public class Leilao {
         this.estado = estado;
         this.produtos = produtos;
         this.instituicoesFinanceiras = instituicoesFinanceiras;
-        this.status = status;
+        this.status = calcularStatus();
     }
 
-    // Getters e Setters
-
-    public Long getId() {
-        return id;
+    @PrePersist
+    @PreUpdate
+    private void atualizarStatus() {
+        this.status = calcularStatus();
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    private Status calcularStatus() {
+        LocalDateTime agora = LocalDateTime.now();
+        if (agora.isBefore(dataInicio)) {
+            return Status.ABERTO;
+        } else if (agora.isAfter(dataFim)) {
+            return Status.FINALIZADO;
+        } else {
+            return Status.EM_ANDAMENTO;
+        }
     }
 
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public LocalDateTime getDataInicio() {
-        return dataInicio;
-    }
-
-    public void setDataInicio(LocalDateTime dataInicio) {
-        this.dataInicio = dataInicio;
-    }
-
-    public LocalDateTime getDataFim() {
-        return dataFim;
-    }
-
-    public void setDataFim(LocalDateTime dataFim) {
-        this.dataFim = dataFim;
-    }
-
-    public LocalDateTime getDataVisitacao() {
-        return dataVisitacao;
-    }
-
-    public void setDataVisitacao(LocalDateTime dataVisitacao) {
-        this.dataVisitacao = dataVisitacao;
-    }
-
-    public String getEndereco() {
-        return endereco;
-    }
-
-    public void setEndereco(String endereco) {
-        this.endereco = endereco;
-    }
-
-    public String getCidade() {
-        return cidade;
-    }
-
-    public void setCidade(String cidade) {
-        this.cidade = cidade;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-    public List<Produto> getProdutos() {
-        return produtos;
-    }
-
-    public void setProdutos(List<Produto> produtos) {
-        this.produtos = produtos;
-    }
-
-    public List<InstituicaoFinanceira> getInstituicoesFinanceiras() {
-        return instituicoesFinanceiras;
-    }
-
-    public void setInstituicoesFinanceiras(List<InstituicaoFinanceira> instituicoesFinanceiras) {
-        this.instituicoesFinanceiras = instituicoesFinanceiras;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    /**
-     * Verifica se o leilão está ativo com base na data de início e término.
-     *
-     * @return true se o leilão estiver ativo, false caso contrário.
-     */
     public boolean isAtivo() {
         LocalDateTime agora = LocalDateTime.now();
         return agora.isAfter(dataInicio) && agora.isBefore(dataFim);
     }
+
 }

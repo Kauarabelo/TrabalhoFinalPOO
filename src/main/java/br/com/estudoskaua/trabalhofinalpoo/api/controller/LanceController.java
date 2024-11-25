@@ -11,10 +11,12 @@ import br.com.estudoskaua.trabalhofinalpoo.domain.repository.LeilaoRepository;
 import br.com.estudoskaua.trabalhofinalpoo.domain.repository.ProdutoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,21 +26,14 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/lances")
+@RequiredArgsConstructor
+@Slf4j
 public class LanceController {
 
     private final LanceRepository lanceRepository;
     private final ClienteRepository clienteRepository;
     private final ProdutoRepository produtoRepository;
     private final LeilaoRepository leilaoRepository;
-    private static final Logger logger = LoggerFactory.getLogger(LanceController.class);
-
-
-    public LanceController(LanceRepository lanceRepository, ClienteRepository clienteRepository, ProdutoRepository produtoRepository, LeilaoRepository leilaoRepository) {
-        this.lanceRepository = lanceRepository;
-        this.clienteRepository = clienteRepository;
-        this.produtoRepository = produtoRepository;
-        this.leilaoRepository = leilaoRepository;
-    }
 
     /**
      * Listar todos os lances.
@@ -46,9 +41,11 @@ public class LanceController {
      * @return Lista de lances.
      */
     @GetMapping
+    @Transactional
     public ResponseEntity<List<Lance>> listarTodos() {
         List<Lance> lances = lanceRepository.findAll();
-        logger.info("Listando todos os lances. Total: {}", lances.size());
+        lances.forEach(lance -> Hibernate.initialize(lance.getCliente().getLances()));
+        log.info("Listando todos os lances. Total: {}", lances.size());
         return ResponseEntity.ok(lances);
     }
 
@@ -62,11 +59,11 @@ public class LanceController {
     public ResponseEntity<Lance> buscarPorId(@PathVariable Long id) {
         return lanceRepository.findById(id)
                 .map(lance -> {
-                    logger.info("Lance encontrado: {}", lance);
+                    log.info("Lance encontrado: {}", lance);
                     return ResponseEntity.ok(lance);
                 })
                 .orElseGet(() -> {
-                    logger.warn("Lance não encontrado para o ID: {}", id);
+                    log.warn("Lance não encontrado para o ID: {}", id);
                     return ResponseEntity.notFound().build();
                 });
     }
@@ -81,10 +78,10 @@ public class LanceController {
     public ResponseEntity<Lance> criar(@Valid @RequestBody LanceDTO lanceDTO) {
         try {
             Produto produto = produtoRepository.findById(lanceDTO.getProdutoId())
-                    .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+                    .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
 
             Cliente cliente = clienteRepository.findById(lanceDTO.getClienteId())
-                    .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+                    .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
 
             Leilao leilao = produto.getLeilao();
 
@@ -96,10 +93,13 @@ public class LanceController {
             lance.setDataLance(lanceDTO.getDataLance());
 
             Lance savedLance = lanceRepository.save(lance);
-            logger.info("Lance criado: {}", savedLance);
+            log.info("Lance criado: {}", savedLance);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedLance);
+        } catch (EntityNotFoundException e) {
+            log.error("Erro ao criar lance: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
-            logger.error("Erro ao criar lance: {}", e.getMessage());
+            log.error("Erro inesperado ao criar lance: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
@@ -114,7 +114,7 @@ public class LanceController {
     @PutMapping("/{id}")
     public ResponseEntity<Lance> atualizar(@PathVariable Long id, @Valid @RequestBody LanceDTO lanceDTO) {
         if (!lanceRepository.existsById(id)) {
-            logger.warn("Lance não encontrado para atualização: {}", id);
+            log.warn("Lance não encontrado para atualização: {}", id);
             return ResponseEntity.notFound().build();
         }
 
@@ -133,10 +133,13 @@ public class LanceController {
             lance.setDataLance(lanceDTO.getDataLance());
 
             Lance lanceAtualizado = lanceRepository.save(lance);
-            logger.info("Lance atualizado: {}", lanceAtualizado);
+            log.info("Lance atualizado: {}", lanceAtualizado);
             return ResponseEntity.ok(lanceAtualizado);
+        } catch (EntityNotFoundException e) {
+            log.error("Erro ao atualizar lance: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
-            logger.error("Erro ao atualizar lance: {}", e.getMessage());
+            log.error("Erro inesperado ao atualizar lance: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
@@ -150,11 +153,11 @@ public class LanceController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         if (!lanceRepository.existsById(id)) {
-            logger.warn("Lance não encontrado para remoção: {}", id);
+            log.warn("Lance não encontrado para remoção: {}", id);
             return ResponseEntity.notFound().build();
         }
         lanceRepository.deleteById(id);
-        logger.info("Lance removido: {}", id);
+        log.info("Lance removido: {}", id);
         return ResponseEntity.noContent().build();
     }
 }
