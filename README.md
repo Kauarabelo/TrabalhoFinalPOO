@@ -11,8 +11,6 @@ Este projeto implementa um sistema de leilão em Java utilizando Spring Boot. O 
 - [Testes dos Endpoints](#testes-dos-endpoints)
 - [Endpoints Disponíveis](#endpoints-disponíveis)
 - [Diagrama de Classe](#diagrama-de-classe)
-- [Contribuições](#contribuições)
-- [Licença](#licença)
 
 ## Visão Geral
 
