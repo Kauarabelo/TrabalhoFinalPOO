@@ -1,5 +1,6 @@
 package br.com.estudoskaua.trabalhofinalpoo.api.dto.export;
 
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 /**
@@ -14,4 +15,11 @@ public class ProdutoDTOExport {
     private Double valor;
     private String tipo;  // Pode ser 'informática' ou 'veículo'
     private String especificacoes;
+
+    private String imagemUrl;
+    private Long leilaoId;
+    private String marca;
+    private String modelo;
+    private Integer anoDeFabricacao;
+    private String Placa;
 }

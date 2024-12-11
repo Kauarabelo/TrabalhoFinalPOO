@@ -1,5 +1,6 @@
 package br.com.estudoskaua.trabalhofinalpoo.api.dto.export;
 
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,11 +13,15 @@ import java.util.List;
 public class LeilaoDTOExport {
 
     private String descricao;
+    private List<Long> produtoIds;
     private List<String> produtoNomes;  // Lista apenas dos nomes dos produtos
     private List<String> instituicaoFinanceiraNomes;  // Lista dos nomes das instituições financeiras
     private LocalDateTime dataInicio;
     private LocalDateTime dataFim;
+    private LocalDateTime dataVisitacao;
     private String endereco;
     private String cidade;
     private String estado;
+
+
 }

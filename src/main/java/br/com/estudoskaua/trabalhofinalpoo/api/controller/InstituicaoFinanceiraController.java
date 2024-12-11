@@ -1,7 +1,11 @@
 package br.com.estudoskaua.trabalhofinalpoo.api.controller;
 
+import br.com.estudoskaua.trabalhofinalpoo.domain.model.Cliente;
 import br.com.estudoskaua.trabalhofinalpoo.domain.model.InstituicaoFinanceira;
 import br.com.estudoskaua.trabalhofinalpoo.domain.repository.InstituicaoFinanceiraRepository;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +20,15 @@ import java.util.Optional;
 @RequestMapping("/instituicoes")
 public class InstituicaoFinanceiraController {
 
-    // Injeção do repositório de Instituição Financeira
+    private final InstituicaoFinanceiraRepository instituicaoFinanceiraRepository;
+
     @Autowired
-    private InstituicaoFinanceiraRepository instituicaoFinanceiraRepository;
+    public InstituicaoFinanceiraController(InstituicaoFinanceiraRepository instituicaoFinanceiraRepository) {
+        this.instituicaoFinanceiraRepository = instituicaoFinanceiraRepository;
+    }
+
+
+    private static final Logger logger = LoggerFactory.getLogger(InstituicaoFinanceiraController.class);
 
     /**
      * Lista todas as instituições financeiras.
@@ -69,4 +79,25 @@ public class InstituicaoFinanceiraController {
         instituicaoFinanceiraRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * Atualiza uma instituição financeira por ID.
+     *
+     * @param id ID da instituição financeira a ser atualizada.
+     * @param instituicaoFinanceira Objeto com os novos dados para atualização.
+     * @return ResponseEntity com a instituição financeira atualizada ou 404 Not Found.
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<InstituicaoFinanceira> atualizar(@PathVariable Long id,
+                                                           @Valid @RequestBody InstituicaoFinanceira instituicaoFinanceira) {
+        Optional<InstituicaoFinanceira> instituicaoExistente = instituicaoFinanceiraRepository.findById(id);
+        if (instituicaoExistente.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        instituicaoFinanceira.setId(id); // Garantir que o ID da entidade seja o mesmo
+        InstituicaoFinanceira instituicaoAtualizada = instituicaoFinanceiraRepository.save(instituicaoFinanceira);
+        return ResponseEntity.ok(instituicaoAtualizada);
+    }
 }
+

@@ -1,33 +1,27 @@
 package br.com.estudoskaua.trabalhofinalpoo.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Representa um produto genérico em um leilão.
+ * Classe base para os produtos no sistema de leilão.
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING)
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "dtype")
 public abstract class Produto {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(nullable = false)
     private String nome;
-
     private String descricao;
     private Double valor;
     private String imagemUrl;
@@ -37,39 +31,28 @@ public abstract class Produto {
     @JsonIgnoreProperties({"produtos", "instituicoesFinanceiras"})
     private Leilao leilao;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_produto", insertable = false, updatable = false)
-    private TipoProduto tipo;
+    @OneToMany(mappedBy = "produto", fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<Lance> lances;
 
-    private boolean vendido;
-
-    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private List<Lance> lances = new ArrayList<>();
 
     /**
-     * Construtor com Leilao.
+     * -- GETTER --
+     *  Verifica se o produto foi vendido.
      *
-     * @param leilao Leilão ao qual o produto está associado.
+     * @return true se o produto foi vendido, caso contrário false
      */
-    public Produto(Leilao leilao) {
-        this.leilao = leilao;
-    }
+    @Getter
+    @Column(nullable = false)
+    private boolean vendido = false;
 
     /**
-     * Construtor completo para Produto.
+     * Define o status de venda do produto.
      *
-     * @param nome Nome do produto.
-     * @param descricao Descrição do produto.
-     * @param valor Valor do produto.
-     * @param imagemUrl URL da imagem do produto.
-     * @param leilao Leilão ao qual o produto está associado.
+     * @param vendido true para marcar como vendido, false caso contrário
      */
-    public Produto(String nome, String descricao, Double valor, String imagemUrl, Leilao leilao) {
-        this.nome = nome;
-        this.descricao = descricao;
-        this.valor = valor;
-        this.imagemUrl = imagemUrl;
-        this.leilao = leilao;
+    public void setVendido(boolean vendido) {
+        this.vendido = vendido;
     }
+
 }

@@ -83,19 +83,4 @@ public class LeilaoDTO {
         }
     }
 
-    /**
-     * Define o status do leilão com base nas datas de início e fim.
-     *
-     * @return o status do leilão.
-     */
-    public Status definirStatus() {
-        LocalDateTime agora = LocalDateTime.now();
-        if (dataInicio.isAfter(agora)) {
-            return Status.ABERTO;
-        } else if (dataFim.isBefore(agora)) {
-            return Status.FINALIZADO;
-        } else {
-            return Status.EM_ANDAMENTO;
-        }
-    }
 }

@@ -14,16 +14,33 @@ import java.time.LocalDateTime;
 @Data
 public class LanceDTO {
 
-    @NotNull(message = "ID do cliente é obrigatório")
+    /**
+     * ID do cliente que está fazendo o lance.
+     * Deve ser informado e não pode ser nulo.
+     */
+    @NotNull(message = "O ID do cliente é obrigatório.")
     private Long clienteId;
 
-    @NotNull(message = "ID do produto é obrigatório")
+    /**
+     * ID do produto para o qual o lance está sendo feito.
+     * Deve ser informado e não pode ser nulo.
+     */
+    @NotNull(message = "O ID do produto é obrigatório.")
     private Long produtoId;
 
-    @NotNull(message = "Valor do lance é obrigatório")
-    @Positive(message = "Valor do lance deve ser positivo")
+    /**
+     * Valor do lance a ser registrado.
+     * Deve ser um valor positivo e não pode ser nulo.
+     */
+    @NotNull(message = "O valor do lance é obrigatório.")
+    @Positive(message = "O valor do lance deve ser maior que zero.")
     private Double valor;
 
-    @NotNull(message = "Data do lance é obrigatória")
+    /**
+     * Data e hora do lance.
+     * Deve ser informada, não pode ser nula, e não deve estar no futuro.
+     */
+    @NotNull(message = "A data do lance é obrigatória.")
+    @PastOrPresent(message = "A data do lance não pode estar no futuro.")
     private LocalDateTime dataLance;
 }

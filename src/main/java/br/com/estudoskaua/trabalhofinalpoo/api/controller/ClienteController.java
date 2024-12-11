@@ -129,5 +129,4 @@ public class ClienteController {
         return ResponseEntity.ok(produtos);
     }
 
-
 }

@@ -11,6 +11,7 @@ import br.com.estudoskaua.trabalhofinalpoo.domain.repository.ProdutoRepository;
 import br.com.estudoskaua.trabalhofinalpoo.domain.service.ExportacaoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +54,7 @@ public class LeilaoController {
      */
     @GetMapping
     public ResponseEntity<List<Leilao>> listarTodosLeiloes() {
-        List<Leilao> leiloes = leilaoRepository.findAll();
+        List<Leilao> leiloes = leilaoRepository.findAll(Sort.by(Sort.Direction.ASC, "data_inicio"));
         leiloes.forEach(this::atualizarStatusLeilao); // Atualiza o status de todos os leilões
         logger.info("Listando todos os leilões. Total: {}", leiloes.size());
         if (leiloes.isEmpty()) {
@@ -79,6 +80,11 @@ public class LeilaoController {
             leilao.setEndereco(leilaoDTO.getEndereco());
             leilao.setCidade(leilaoDTO.getCidade());
             leilao.setEstado(leilaoDTO.getEstado());
+
+            // Verifica se as datas não são nulas antes de tentar manipulá-las
+            if (leilao.getDataFim() == null || leilao.getDataInicio() == null || leilao.getDataVisitacao() == null) {
+                return ResponseEntity.badRequest().body(null); // Se alguma data for nula, retorna erro
+            }
 
             // Atualizar status com base nas datas
             atualizarStatusLeilao(leilao);
@@ -164,7 +170,6 @@ public class LeilaoController {
     public ResponseEntity<byte[]> exportarLeiloes() {
         try {
             List<Leilao> leiloes = leilaoRepository.findAll();
-            leiloes.forEach(this::atualizarStatusLeilao); // Atualiza o status de todos os leilões
 
             // Chama o serviço de exportação para gerar o arquivo .DET
             String caminhoArquivo = exportacaoService.gerarArquivoDet(leiloes);

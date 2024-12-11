@@ -1,10 +1,5 @@
--- Excluir tabelas com dependências, em ordem correta
-DROP TABLE IF EXISTS leilao_instituicao_financeira;
-DROP TABLE IF EXISTS lance;
-DROP TABLE IF EXISTS produto;
-DROP TABLE IF EXISTS leilao;
-DROP TABLE IF EXISTS instituicao_financeira;
-DROP TABLE IF EXISTS cliente;
+-- Excluir todas as tabelas com dependências, em ordem correta
+DROP ALL OBJECTS;
 
 -- Criação das tabelas
 CREATE TABLE cliente (
@@ -31,29 +26,111 @@ CREATE TABLE leilao (
     endereco VARCHAR(255) NOT NULL,
     cidade VARCHAR(100) NOT NULL,
     estado VARCHAR(2) NOT NULL,
-    status ENUM('ABERTO', 'EM_ANDAMENTO', 'FECHADO') NOT NULL
+    cliente_id BIGINT,
+    status ENUM('ABERTO', 'EM_ANDAMENTO', 'FINALIZADO') NOT NULL
 );
 
 CREATE TABLE produto (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    dtype ENUM('DispositivoInformatica', 'Veiculo') NOT NULL,
+    dtype VARCHAR(31) NOT NULL,
     nome VARCHAR(100) NOT NULL,
     descricao VARCHAR(255) NOT NULL,
     valor DOUBLE NOT NULL,
     imagem_url VARCHAR(255),
-    tipo_produto VARCHAR(31),
-    tipo_informatica VARCHAR(31),
-    tipo_veiculo VARCHAR(31),
+    vendido BOOLEAN DEFAULT FALSE,
+    leilao_id BIGINT,
+    FOREIGN KEY (leilao_id) REFERENCES leilao(id)
+);
+
+CREATE TABLE dispositivo_informatica (
+    id BIGINT PRIMARY KEY,
     especificacoes VARCHAR(255),
+    marca VARCHAR(100),
+    modelo VARCHAR(100),
+    FOREIGN KEY (id) REFERENCES produto(id)
+);
+
+CREATE TABLE veiculo (
+    id BIGINT PRIMARY KEY,
     marca VARCHAR(100),
     modelo VARCHAR(100),
     ano INTEGER,
     placa VARCHAR(7),
     ano_de_fabricacao INTEGER,
-    vendido BOOLEAN,
-    leilao_id BIGINT,
-    FOREIGN KEY (leilao_id) REFERENCES leilao(id),
-    CHECK ( (dtype = 'DispositivoInformatica' AND placa IS NULL) OR (dtype = 'Veiculo' AND placa IS NOT NULL) )
+    FOREIGN KEY (id) REFERENCES produto(id)
+);
+
+-- Criação das tabelas específicas para subclasses de DispositivoInformatica e Veiculo
+CREATE TABLE hub (
+    id BIGINT PRIMARY KEY,
+    frequencia VARCHAR(100),
+    qtd_porta INTEGER,
+    FOREIGN KEY (id) REFERENCES dispositivo_informatica(id)
+);
+
+CREATE TABLE impressora (
+    id BIGINT PRIMARY KEY,
+    resolucao VARCHAR(100),
+    tipo_impressora VARCHAR(100),
+    FOREIGN KEY (id) REFERENCES dispositivo_informatica(id)
+);
+
+CREATE TABLE monitor (
+    id BIGINT PRIMARY KEY,
+    resolucao VARCHAR(100),
+    tamanho_tela INTEGER,
+    FOREIGN KEY (id) REFERENCES dispositivo_informatica(id)
+);
+
+CREATE TABLE notebook (
+    id BIGINT PRIMARY KEY,
+    memoria_ram VARCHAR(100),
+    processador VARCHAR(100),
+    tamanho_tela INTEGER,
+    FOREIGN KEY (id) REFERENCES dispositivo_informatica(id)
+);
+
+CREATE TABLE roteador (
+    id BIGINT PRIMARY KEY,
+    frequencia VARCHAR(100),
+    qtd_antenas INTEGER,
+    qtd_porta INTEGER,
+    FOREIGN KEY (id) REFERENCES dispositivo_informatica(id)
+);
+
+CREATE TABLE switch (
+    id BIGINT PRIMARY KEY,
+    frequencia VARCHAR(100),
+    qtd_porta INTEGER,
+    FOREIGN KEY (id) REFERENCES dispositivo_informatica(id)
+);
+
+CREATE TABLE caminhao (
+    id BIGINT PRIMARY KEY,
+    capacidade_carga DOUBLE,
+    FOREIGN KEY (id) REFERENCES veiculo(id)
+);
+
+CREATE TABLE carro (
+    id BIGINT PRIMARY KEY,
+    numero_de_passegeiros INTEGER,
+    numero_de_portas INTEGER,
+    tipo_de_combustivel VARCHAR(100),
+    FOREIGN KEY (id) REFERENCES veiculo(id)
+);
+
+CREATE TABLE motocicleta (
+    id BIGINT PRIMARY KEY,
+    cilindrada VARCHAR(100),
+    tipo_de_combustivel VARCHAR(100),
+    FOREIGN KEY (id) REFERENCES veiculo(id)
+);
+
+CREATE TABLE utilitario (
+    id BIGINT PRIMARY KEY,
+    capacidade_carga DOUBLE,
+    numero_de_portas INTEGER,
+    FOREIGN KEY (id) REFERENCES veiculo(id)
 );
 
 CREATE TABLE lance (
@@ -93,13 +170,23 @@ INSERT INTO leilao (descricao, data_inicio, data_fim, data_visitacao, endereco, 
 ('Leilão de Informática', '2024-12-01 10:00:00', '2024-12-10 18:00:00', '2024-12-05 14:00:00', 'Rua Exemplo, 123', 'São José dos Campos', 'SP', 'ABERTO'),
 ('Leilão de Veículos', '2024-12-15 10:00:00', '2024-12-20 18:00:00', '2024-12-18 14:00:00', 'Av. Principal, 456', 'Rio de Janeiro', 'RJ', 'ABERTO');
 
-INSERT INTO produto (dtype, nome, descricao, valor, imagem_url, tipo_produto, tipo_informatica, tipo_veiculo, especificacoes, marca, modelo, ano, placa, ano_de_fabricacao, vendido, leilao_id) VALUES
-('DispositivoInformatica', 'Notebook Dell', 'Notebook de alta performance', 2500.00, 'http://example.com/notebook.jpg', 'DISPOSITIVO_INFORMATICA', 'NOTEBOOK', NULL, 'Intel i7, 16GB RAM, 512GB SSD', 'Dell', 'Inspiron', NULL, NULL, NULL, FALSE, 1),
-('Veiculo', 'Carro Fiat', 'Carro econômico', 30000.00, 'http://example.com/carro.jpg', 'VEICULO', NULL, 'CARRO', NULL, 'Fiat', 'Uno', 2022, 'ABC1234', 2022, FALSE, 1),
-('DispositivoInformatica', 'Monitor Samsung', 'Monitor Full HD', 800.00, 'http://example.com/monitor.jpg', 'DISPOSITIVO_INFORMATICA', 'MONITOR', NULL, '24 polegadas, Full HD', 'Samsung', 'Curve', NULL, NULL, NULL, TRUE, 1),
-('Veiculo', 'Moto Honda', 'Motocicleta esportiva', 15000.00, 'http://example.com/moto.jpg', 'VEICULO', NULL, 'MOTOCICLETA_PASSEIO', NULL, 'Honda', 'CBR', 2020, 'DEF5678', 2020, FALSE, 2),
-('DispositivoInformatica', 'Switch Cisco', 'Switch de rede', 1200.00, 'http://example.com/switch.jpg', 'DISPOSITIVO_INFORMATICA', 'SWITCH', NULL, '24 portas, Gigabit Ethernet', 'Cisco', 'Catalyst', NULL, NULL, NULL, TRUE, 1),
-('Veiculo', 'Caminhão Volvo', 'Caminhão de carga', 120000.00, 'http://example.com/caminhao.jpg', 'VEICULO', NULL, 'CAMINHÃO', NULL, 'Volvo', 'FH', 2018, 'GHI9101', 2018, FALSE, 2);
+INSERT INTO produto (dtype, nome, descricao, valor, imagem_url, vendido, leilao_id) VALUES
+('DispositivoInformatica', 'Notebook Dell', 'Notebook de alta performance', 2500.00, 'http://example.com/notebook.jpg', FALSE, 1),
+('Veiculo', 'Carro Fiat', 'Carro econômico', 30000.00, 'http://example.com/carro.jpg', FALSE, 1),
+('DispositivoInformatica', 'Monitor Samsung', 'Monitor Full HD', 800.00, 'http://example.com/monitor.jpg', TRUE, 1),
+('Veiculo', 'Moto Honda', 'Motocicleta esportiva', 15000.00, 'http://example.com/moto.jpg', FALSE, 2),
+('DispositivoInformatica', 'Switch Cisco', 'Switch de rede', 1200.00, 'http://example.com/switch.jpg', TRUE, 1),
+('Veiculo', 'Caminhão Volvo', 'Caminhão de carga', 120000.00, 'http://example.com/caminhao.jpg', FALSE, 2);
+
+INSERT INTO dispositivo_informatica (id, especificacoes, marca, modelo) VALUES
+(1, 'Intel i7, 16GB RAM, 512GB SSD', 'Dell', 'Inspiron'),
+(3, '24 polegadas, Full HD', 'Samsung', 'Curve'),
+(5, '24 portas, Gigabit Ethernet', 'Cisco', 'Catalyst');
+
+INSERT INTO veiculo (id, marca, modelo, ano, placa, ano_de_fabricacao) VALUES
+(2, 'Fiat', 'Uno', 2022, 'ABC1234', 2022),
+(4, 'Honda', 'CBR', 2020, 'DEF5678', 2020),
+(6, 'Volvo', 'FH', 2018, 'GHI9101', 2018);
 
 INSERT INTO leilao_instituicao_financeira (leilao_id, instituicao_financeira_id) VALUES
 (1, 1), (1, 2), (2, 3), (2, 4);

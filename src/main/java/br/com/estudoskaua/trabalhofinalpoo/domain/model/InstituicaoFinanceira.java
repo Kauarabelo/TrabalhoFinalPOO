@@ -5,8 +5,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -35,12 +33,9 @@ public class InstituicaoFinanceira {
     @Column(name = "data_cadastro", nullable = false, updatable = false)
     private LocalDateTime dataCadastro;
 
-    @ManyToMany(mappedBy = "instituicoesFinanceiras", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonIgnore // Evita loops durante a serialização JSON
-    private List<Leilao> leiloes = new ArrayList<>();
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)  // Relacionamento ManyToOne (uma instituição pode estar associada a múltiplos leilões)
     @JoinColumn(name = "leilao_id")
+    @JsonIgnore // Evita loops durante a serialização JSON
     private Leilao leilao;
 
     // Construtor padrão
@@ -86,14 +81,6 @@ public class InstituicaoFinanceira {
 
     public void setDataCadastro(LocalDateTime dataCadastro) {
         this.dataCadastro = dataCadastro;
-    }
-
-    public List<Leilao> getLeiloes() {
-        return leiloes;
-    }
-
-    public void setLeiloes(List<Leilao> leiloes) {
-        this.leiloes = leiloes;
     }
 
     public Leilao getLeilao() {

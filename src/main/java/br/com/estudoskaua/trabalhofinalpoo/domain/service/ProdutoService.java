@@ -1,13 +1,18 @@
 package br.com.estudoskaua.trabalhofinalpoo.domain.service;
 
 import br.com.estudoskaua.trabalhofinalpoo.api.dto.ProdutoDTO;
+import br.com.estudoskaua.trabalhofinalpoo.api.exception.ProdutoNaoEncontradoException;
+import br.com.estudoskaua.trabalhofinalpoo.api.exception.ProdutoVendidoException;
 import br.com.estudoskaua.trabalhofinalpoo.domain.model.*;
+import br.com.estudoskaua.trabalhofinalpoo.domain.model.dispositivosInformatica.*;
+import br.com.estudoskaua.trabalhofinalpoo.domain.model.veiculos.*;
 import br.com.estudoskaua.trabalhofinalpoo.domain.repository.LeilaoRepository;
 import br.com.estudoskaua.trabalhofinalpoo.domain.repository.ProdutoRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * Serviço responsável pela gestão dos produtos no sistema de leilão.
@@ -21,17 +26,43 @@ public class ProdutoService {
     @Autowired
     private LeilaoRepository leilaoRepository;
 
+    public List<Produto> getAllProdutos() {
+        return produtoRepository.findAll();
+    }
+
+    public Produto getProdutoById(Long id) {
+        return produtoRepository.findById(id)
+                .orElseThrow(() -> new ProdutoNaoEncontradoException("Produto com ID " + id + " não encontrado."));
+    }
+
+    @Transactional
+    public Produto updateProduto(Long id, ProdutoDTO produtoDTO) {
+        Produto produtoExistente = getProdutoById(id);
+
+        produtoExistente.setNome(produtoDTO.getNome());
+        produtoExistente.setDescricao(produtoDTO.getDescricao());
+        produtoExistente.setValor(produtoDTO.getValor());
+        produtoExistente.setImagemUrl(produtoDTO.getImagemUrl());
+        return produtoRepository.save(produtoExistente);
+    }
+
+    @Transactional
+    public void deleteProduto(Long id) {
+        Produto produto = getProdutoById(id);
+        produtoRepository.delete(produto);
+    }
+
     /**
      * Cria um novo produto associado a um leilão.
      *
      * @param produtoDTO Dados do produto a ser criado
      * @return O produto criado
-     * @throws EntityNotFoundException Se o leilão não for encontrado
+     * @throws ProdutoNaoEncontradoException Se o leilão não for encontrado
      */
     @Transactional
     public Produto criarProduto(ProdutoDTO produtoDTO) {
         Leilao leilao = leilaoRepository.findById(produtoDTO.getLeilaoId())
-                .orElseThrow(() -> new EntityNotFoundException("Leilão não encontrado"));
+                .orElseThrow(() -> new ProdutoNaoEncontradoException("Leilão não encontrado"));
 
         Produto produto = criarProdutoBaseadoNoTipo(produtoDTO);
         produto.setNome(produtoDTO.getNome());
@@ -47,6 +78,7 @@ public class ProdutoService {
      *
      * @param produtoDTO Dados do produto
      * @return O produto criado (Veículo ou Dispositivo)
+     * @throws IllegalArgumentException Se o tipo de produto for inválido
      */
     private Produto criarProdutoBaseadoNoTipo(ProdutoDTO produtoDTO) {
         if (produtoDTO.getTipoVeiculo() != null && !produtoDTO.getTipoVeiculo().isEmpty()) {
@@ -65,11 +97,27 @@ public class ProdutoService {
      * @return O veículo criado
      */
     private Veiculo criarVeiculo(ProdutoDTO produtoDTO) {
-        Veiculo veiculo = new Veiculo();
+        Veiculo veiculo;
+        switch (produtoDTO.getTipoVeiculo()) {
+            case "CARRO":
+                veiculo = new Carro();
+                break;
+            case "CAMINHAO":
+                veiculo = new Caminhao();
+                break;
+            case "MOTOCICLETA":
+                veiculo = new Motocicleta();
+                break;
+            case "UTILITARIO":
+                veiculo = new Utilitario();
+                break;
+            default:
+                throw new IllegalArgumentException("Tipo de veículo inválido.");
+        }
         veiculo.setMarca(produtoDTO.getMarca());
         veiculo.setModelo(produtoDTO.getModelo());
         veiculo.setAnoDeFabricacao(produtoDTO.getAnoDeFabricacao());
-        veiculo.setTipoVeiculo(TipoVeiculo.valueOf(produtoDTO.getTipoVeiculo()));
+        veiculo.setPlaca(produtoDTO.getPlaca());
         return veiculo;
     }
 
@@ -80,25 +128,52 @@ public class ProdutoService {
      * @return O dispositivo de informática criado
      */
     private DispositivoInformatica criarDispositivoInformatica(ProdutoDTO produtoDTO) {
-        DispositivoInformatica dispositivo = new DispositivoInformatica();
-        dispositivo.setTipoInformatica(TipoInformatica.valueOf(produtoDTO.getTipoInformatica()));
+        DispositivoInformatica dispositivo;
+        switch (produtoDTO.getTipoInformatica()) {
+            case "NOTEBOOK":
+                dispositivo = new Notebook();
+                break;
+            case "IMPRESSORA":
+                dispositivo = new Impressora();
+                break;
+            case "MONITOR":
+                dispositivo = new Monitor();
+                break;
+            case "HUB":
+                dispositivo = new Hub();
+                break;
+            case "SWITCH":
+                dispositivo = new Switch();
+                break;
+            case "ROTEADOR":
+                dispositivo = new Roteador();
+                break;
+            default:
+                throw new IllegalArgumentException("Tipo de dispositivo inválido.");
+        }
+        dispositivo.setMarca(produtoDTO.getMarca());
+        dispositivo.setModelo(produtoDTO.getModelo());
+        dispositivo.setEspecificacoes(produtoDTO.getEspecificacoes());
         return dispositivo;
     }
+
 
     /**
      * Desassocia um produto de seu leilão, se não tiver sido vendido.
      *
      * @param produtoId ID do produto a ser desassociado
-     * @throws EntityNotFoundException Se o produto não for encontrado
-     * @throws IllegalStateException Se o produto já foi vendido
+     * @throws ProdutoNaoEncontradoException Se o produto não for encontrado
+     * @throws ProdutoVendidoException Se o produto já foi vendido
      */
     @Transactional
     public void removerProdutoDoLeilao(Long produtoId) {
         Produto produto = produtoRepository.findById(produtoId)
-                .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
+                .orElseThrow(() -> new ProdutoNaoEncontradoException("Produto não encontrado"));
+
         if (produto.isVendido()) {
-            throw new IllegalStateException("Produto vendido, não pode ser desassociado");
+            throw new ProdutoVendidoException("Produto vendido, não pode ser desassociado.");
         }
+
         produto.setLeilao(null);
         produtoRepository.save(produto);
     }

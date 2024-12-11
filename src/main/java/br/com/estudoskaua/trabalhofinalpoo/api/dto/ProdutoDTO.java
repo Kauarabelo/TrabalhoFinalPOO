@@ -17,6 +17,7 @@ import java.lang.annotation.Target;
  * </p>
  */
 @Data
+@ProdutoDTO.OneTypeOnly
 public class ProdutoDTO {
 
     @NotBlank(message = "Nome do produto não pode ser vazio")
@@ -44,6 +45,8 @@ public class ProdutoDTO {
 
     @Positive(message = "Ano de fabricação deve ser maior que zero")
     private Integer anoDeFabricacao;
+
+    private String Placa;
 
     // Novo campo para Especificações
     @NotBlank(message = "Especificações não podem estar vazias")

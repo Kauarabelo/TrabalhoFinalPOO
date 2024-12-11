@@ -77,11 +77,8 @@ public class LanceController {
     @PostMapping
     public ResponseEntity<Lance> criar(@Valid @RequestBody LanceDTO lanceDTO) {
         try {
-            Produto produto = produtoRepository.findById(lanceDTO.getProdutoId())
-                    .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
-
-            Cliente cliente = clienteRepository.findById(lanceDTO.getClienteId())
-                    .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
+            Produto produto = buscarProduto(lanceDTO.getProdutoId());
+            Cliente cliente = buscarCliente(lanceDTO.getClienteId());
 
             Leilao leilao = produto.getLeilao();
 
@@ -113,26 +110,26 @@ public class LanceController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<Lance> atualizar(@PathVariable Long id, @Valid @RequestBody LanceDTO lanceDTO) {
-        if (!lanceRepository.existsById(id)) {
-            log.warn("Lance não encontrado para atualização: {}", id);
-            return ResponseEntity.notFound().build();
-        }
-
         try {
-            Produto produto = produtoRepository.findById(lanceDTO.getProdutoId())
-                    .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
-            Cliente cliente = clienteRepository.findById(lanceDTO.getClienteId())
-                    .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
+            if (!lanceRepository.existsById(id)) {
+                log.warn("Lance não encontrado para atualização: {}", id);
+                return ResponseEntity.notFound().build();
+            }
 
-            Lance lance = new Lance();
-            lance.setId(id);
-            lance.setProduto(produto);
-            lance.setLeilao(produto.getLeilao());
-            lance.setCliente(cliente);
-            lance.setValor(lanceDTO.getValor());
-            lance.setDataLance(lanceDTO.getDataLance());
+            Produto produto = buscarProduto(lanceDTO.getProdutoId());
+            Cliente cliente = buscarCliente(lanceDTO.getClienteId());
 
-            Lance lanceAtualizado = lanceRepository.save(lance);
+            // Buscar o lance existente e atualizar seus campos
+            Lance lanceExistente = lanceRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Lance não encontrado"));
+
+            lanceExistente.setProduto(produto);
+            lanceExistente.setLeilao(produto.getLeilao());
+            lanceExistente.setCliente(cliente);
+            lanceExistente.setValor(lanceDTO.getValor());
+            lanceExistente.setDataLance(lanceDTO.getDataLance());
+
+            Lance lanceAtualizado = lanceRepository.save(lanceExistente);
             log.info("Lance atualizado: {}", lanceAtualizado);
             return ResponseEntity.ok(lanceAtualizado);
         } catch (EntityNotFoundException e) {
@@ -159,5 +156,27 @@ public class LanceController {
         lanceRepository.deleteById(id);
         log.info("Lance removido: {}", id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Método auxiliar para buscar Produto pelo ID.
+     *
+     * @param produtoId ID do produto.
+     * @return Produto encontrado.
+     */
+    private Produto buscarProduto(Long produtoId) {
+        return produtoRepository.findById(produtoId)
+                .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
+    }
+
+    /**
+     * Método auxiliar para buscar Cliente pelo ID.
+     *
+     * @param clienteId ID do cliente.
+     * @return Cliente encontrado.
+     */
+    private Cliente buscarCliente(Long clienteId) {
+        return clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
     }
 }

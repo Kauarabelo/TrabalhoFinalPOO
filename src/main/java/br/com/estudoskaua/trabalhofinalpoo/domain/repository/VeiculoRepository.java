@@ -1,7 +1,7 @@
 package br.com.estudoskaua.trabalhofinalpoo.domain.repository;
 
 import br.com.estudoskaua.trabalhofinalpoo.domain.model.Produto;
-import br.com.estudoskaua.trabalhofinalpoo.domain.model.Veiculo;
+import br.com.estudoskaua.trabalhofinalpoo.domain.model.veiculos.Veiculo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
